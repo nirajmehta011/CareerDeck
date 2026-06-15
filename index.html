@@ -188,12 +188,13 @@
   /* ━━ MOBILE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
   .responsive-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .responsive-grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .flex-header-responsive { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 
   @media (max-width: 768px) {
-    .sidebar { width: 60px; }
+    .sidebar { width: 60px; overflow-y: auto; }
     .sidebar .sidebar-label { display: none; }
     .sidebar .sidebar-logo-text { display: none; }
-    .sidebar .sidebar-stats { display: none; }
+    .sidebar .sidebar-stats { display: none !important; }
     .sidebar .nav-item { padding: 9px 0; justify-content: center; }
     .sidebar .btn { padding: 8px 0; justify-content: center; }
     .detail-panel { width: 100vw; }
@@ -213,6 +214,9 @@
     .diff-row-container > div:first-child { border-right: none !important; border-bottom: 1px solid var(--border); }
     .hidden-mobile { display: none !important; }
     .hide-mobile { display: none !important; }
+    .topbar-spacer { display: none !important; }
+    .flex-header-responsive { flex-direction: column; align-items: stretch !important; gap: 12px; }
+    .flex-header-responsive button { width: 100%; }
   }
 
   @media (max-width: 480px) {
@@ -2138,7 +2142,7 @@ Generate my weekly momentum digest.`;
 
   return (
     <div className="chart-container" style={{ marginTop:16 }}>
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
+      <div className="flex-header-responsive" style={{ marginBottom:16 }}>
         <div style={{ display:'flex', alignItems:'center', gap:8 }}>
           <div className="ai-glow-icon">{Sparkles&&<Sparkles size={20} style={{ color:'var(--accent)' }}/>}</div>
           <div>
@@ -2538,7 +2542,7 @@ function SettingsView() {
       <div className="settings-section">
         <div className="settings-section-header">{Database&&<Database size={15}/>} Data Management</div>
         <div className="settings-section-body">
-          <div style={{ display:'flex', gap:10 }}>
+          <div className="responsive-grid-2" style={{ gap:10 }}>
             <Btn variant="secondary" onClick={exportData}>{Download&&<Download size={13}/>} Export JSON</Btn>
             <Btn variant="danger" onClick={clearData}>{Trash2&&<Trash2 size={13}/>} Clear All Data</Btn>
           </div>
@@ -2915,7 +2919,7 @@ function AIToolsTab({ job }) {
         {Sparkles&&<Sparkles size={12} style={{ display:'inline', marginRight:5, color:'var(--accent)' }}/>}
         AI features require an API key and your base resume. Configure in{' '}
         <button className="btn btn-ghost btn-sm" style={{ padding:'0 4px', height:'auto', fontSize:12 }}
-          onClick={()=>dispatch({ type:A.SET_VIEW, payload:'settings' })}>Settings</button>.
+          onClick={()=>{ dispatch({ type:A.SET_VIEW, payload:'settings' }); dispatch({ type:A.SELECT_JOB, payload:null }); }}>Settings</button>.
       </div>
       {tools.map(t=>(
         <button key={t.id} onClick={()=>openAI(t.id)}
@@ -3196,7 +3200,7 @@ function JobDetailPanel() {
         </div>
 
         {/* Tab content */}
-        <div style={{ flex:1, overflowY:'auto', padding:20 }}>
+        <div style={{ flex:1, overflowY:'auto', padding:'20px 20px 80px' }}>
           {tab==='overview'  && <OverviewTab job={job}/>}
           {tab==='ai'        && <AIToolsTab job={job}/>}
           {tab==='activity'  && <ActivityTab job={job}/>}
@@ -3222,7 +3226,7 @@ function NoAPIKey() {
       <div style={{ fontSize:13, color:'var(--text-3)', maxWidth:340, lineHeight:1.6 }}>
         Add your API key in Settings to use AI features. Supports Gemini, OpenAI, and Anthropic.
       </div>
-      <Btn variant="primary" onClick={()=>dispatch({ type:A.SET_VIEW, payload:'settings' })}>
+      <Btn variant="primary" onClick={()=>{ dispatch({ type:A.SET_VIEW, payload:'settings' }); dispatch({ type:A.SELECT_JOB, payload:null }); dispatch({ type:A.SET_MODAL, payload:{ aiMode:null, aiJobId:null } }); }}>
         {Settings&&<Settings size={14}/>} Go to Settings
       </Btn>
     </div>
@@ -3236,7 +3240,7 @@ function NoResume() {
       {AlertTriangle&&<AlertTriangle size={16} style={{ flexShrink:0, marginTop:1 }}/>}
       <div>
         No base resume found. <button className="btn btn-ghost btn-sm" style={{ color:'var(--warning)', padding:'0 4px', fontSize:13 }}
-          onClick={()=>dispatch({ type:A.SET_VIEW, payload:'settings' })}>Add your resume in Settings</button> to use this feature.
+          onClick={()=>{ dispatch({ type:A.SET_VIEW, payload:'settings' }); dispatch({ type:A.SELECT_JOB, payload:null }); dispatch({ type:A.SET_MODAL, payload:{ aiMode:null, aiJobId:null } }); }}>Add your resume in Settings</button> to use this feature.
       </div>
     </div>
   );
@@ -4575,11 +4579,12 @@ function TopBar() {
     <div className="topbar">
       <div className="search-input-wrap">
         <div className="search-icon">{Search&&<Search size={15}/>}</div>
-        <input ref={searchRef} id="global-search" className="field-input search-input" placeholder="Search jobs… (press / to focus)"
+        <input ref={searchRef} id="global-search" className="field-input search-input"
+          placeholder={window.innerWidth <= 768 ? "Search jobs…" : "Search jobs… (press / to focus)"}
           value={filters.search} onChange={e=>dispatch({ type:A.SET_FILTERS, payload:{ search:e.target.value } })}
           aria-label="Search jobs"/>
       </div>
-      <div style={{ flex:1 }}/>
+      <div className="topbar-spacer" style={{ flex:1 }}/>
       <Btn variant="primary" onClick={()=>dispatch({ type:A.SET_MODAL, payload:{ addJob:true } })} id="add-job-btn" aria-label="Add new job">
         {Plus&&<Plus size={15}/>}<span className="hidden-mobile"> Add Job</span>
       </Btn>
