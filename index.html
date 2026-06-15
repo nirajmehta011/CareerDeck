@@ -191,10 +191,13 @@
   .flex-header-responsive { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 
   @media (max-width: 768px) {
-    .sidebar { width: 60px; overflow-y: auto; }
+    .sidebar { width: 60px; overflow-y: auto; padding: 16px 8px; }
     .sidebar .sidebar-label { display: none; }
     .sidebar .sidebar-logo-text { display: none; }
-    .sidebar .sidebar-stats { display: none !important; }
+    .sidebar .sidebar-stats-title { display: none !important; }
+    .sidebar-stat-row { flex-direction: column !important; gap: 4px !important; align-items: center !important; justify-content: center !important; }
+    .sidebar-stat-label { display: none !important; }
+    .sidebar-stat-icon { display: inline-block !important; }
     .sidebar .nav-item { padding: 9px 0; justify-content: center; }
     .sidebar .btn { padding: 8px 0; justify-content: center; }
     .detail-panel { width: 100vw; }
@@ -203,8 +206,9 @@
     .modal-header { padding: 16px 20px; }
     .modal-body { padding: 16px; }
     .modal-footer { padding: 12px 20px; }
-    .kanban-scroll { flex-direction: column; overflow-x: hidden; overflow-y: auto; align-items: stretch; }
-    .kanban-col { width: 100%; }
+    .kanban-scroll { flex-direction: column; overflow-x: hidden; overflow-y: auto; align-items: stretch; padding-bottom: 100px !important; }
+    .kanban-col { width: 100%; max-height: none !important; }
+    .kanban-col-body { overflow-y: visible !important; }
     .chart-container { min-width: 280px; }
     .toast-stack { left: 20px; right: 20px; bottom: 20px; align-items: stretch; }
     .toast { max-width: 100%; }
@@ -215,6 +219,7 @@
     .hidden-mobile { display: none !important; }
     .hide-mobile { display: none !important; }
     .topbar-spacer { display: none !important; }
+    .sidebar-spacer { display: none !important; }
     .flex-header-responsive { flex-direction: column; align-items: stretch !important; gap: 12px; }
     .flex-header-responsive button { width: 100%; }
   }
@@ -1626,7 +1631,7 @@ function Sidebar() {
           </button>
         ))}
 
-        <div style={{ flex:1 }}/>
+        <div className="sidebar-spacer" style={{ flex:1 }}/>
 
         {/* Add job button */}
         <button className="btn btn-primary" style={{ width:'100%', marginTop:8 }}
@@ -1647,15 +1652,16 @@ function Sidebar() {
 
       {/* Stats */}
       <div className="sidebar-stats" style={{ padding:'12px 14px', borderTop:'1px solid var(--border)', display:'flex', flexDirection:'column', gap:8 }}>
-        <div className="section-title">Overview</div>
+        <div className="section-title sidebar-stats-title">Overview</div>
         {[
-          { label:'Total Jobs', val:stats.total },
-          { label:'Interviews', val:stats.interviews },
-          { label:'Offers',     val:stats.offers, color:'var(--success)' },
-        ].map(({ label, val, color }) => (
-          <div key={label} style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-            <span style={{ fontSize:12, color:'var(--text-2)' }}>{label}</span>
-            <span className="mono" style={{ fontSize:13, fontWeight:600, color:color||'var(--text-1)' }}>{val}</span>
+          { label:'Total Jobs', val:stats.total, icon:'💼' },
+          { label:'Interviews', val:stats.interviews, icon:'📅' },
+          { label:'Offers',     val:stats.offers, color:'var(--success)', icon:'🎉' },
+        ].map(({ label, val, color, icon }) => (
+          <div key={label} className="sidebar-stat-row" style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+            <span className="sidebar-stat-label" style={{ fontSize:12, color:'var(--text-2)' }}>{label}</span>
+            <span className="sidebar-stat-icon" style={{ display:'none', fontSize:14 }}>{icon}</span>
+            <span className="mono sidebar-stat-val" style={{ fontSize:13, fontWeight:600, color:color||'var(--text-1)' }}>{val}</span>
           </div>
         ))}
       </div>
@@ -1929,7 +1935,7 @@ function ListView() {
       </div>
 
       {/* Table */}
-      <div style={{ flex:1, overflowX:'auto', overflowY:'auto' }}>
+      <div style={{ flex:1, overflowX:'auto', overflowY:'auto', paddingBottom:100 }}>
         {filtered.length === 0 ? (
           <div className="empty-state" style={{ paddingTop:80 }}>
             <Briefcase size={40} style={{ color:'var(--text-3)' }}/>
@@ -2475,7 +2481,7 @@ function SettingsView() {
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:12 }}>
             <Btn variant="secondary" size="sm" onClick={testConnection} disabled={testing}>
-              {testing?<Spinner size={13}/>:(Terminal&&<Terminal size={13}/>)}
+              {testing?<Spinner size={13}/>:(Zap&&<Zap size={13}/>)}
               {testing?'Testing…':'Test Connection'}
             </Btn>
             {testResult && (
