@@ -13,6 +13,8 @@ Watch the walkthrough video to see **CareerDeck**'s key features in action, incl
 [Walkthrough Video](walkthrough.mp4)
 
 ---
+🌐 Live Demo
+You can access the live application deployed on Vercel here: 👉 [Live Carrer Deck Website](https://career-deck.vercel.app/)
 
 ## 🚀 Key Features
 
