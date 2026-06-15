@@ -6,6 +6,14 @@ Everything is packed into a single `index.html` file that runs entirely in your 
 
 ---
 
+## 📺 Video Walkthrough
+
+Watch the walkthrough video to see **CareerDeck**'s key features in action, including the AI Job Card Parser, Resume Tailor, AI Document Tools, and STAR Interview Coach:
+
+[Walkthrough Video](walkthrough.mp4)
+
+---
+
 ## 🚀 Key Features
 
 ### 1. Visual Application Pipeline
