@@ -191,10 +191,11 @@
   .flex-header-responsive { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 
   @media (max-width: 768px) {
-    .sidebar { width: 60px; overflow-y: auto; padding: 16px 8px; }
+    .sidebar { width: 60px; overflow-y: auto; padding: 16px 8px 60px !important; }
     .sidebar .sidebar-label { display: none; }
     .sidebar .sidebar-logo-text { display: none; }
     .sidebar .sidebar-stats-title { display: none !important; }
+    .sidebar-stats { padding: 12px 0 20px !important; }
     .sidebar-stat-row { flex-direction: column !important; gap: 4px !important; align-items: center !important; justify-content: center !important; }
     .sidebar-stat-label { display: none !important; }
     .sidebar-stat-icon { display: inline-block !important; }
@@ -1709,7 +1710,7 @@ function JobCard({ job }) {
   return (
     <div
       className={`job-card${dragging?' dragging':''}${recentlyChanged?' recently-changed':''}`}
-      style={{ '--stage-color': meta.color }}
+      style={{ '--stage-color': meta.color, zIndex: menuOpen ? 20 : undefined }}
       draggable={true}
       onDragStart={handleDragStart}
       onDragEnd={() => setDragging(false)}
