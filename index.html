@@ -12,11 +12,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 
   <!-- React 18 -->
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
 
-  <!-- Babel Standalone (JSX) -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Babel Standalone (JSX only — pinned to v7 to avoid Babel 8 ESM output regression) -->
+  <script src="https://unpkg.com/@babel/standalone@7.26.5/babel.min.js"></script>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -359,7 +359,7 @@
   };
 </script>
 
-<script type="text/babel" data-presets="react">
+<script type="text/babel" data-presets="react" data-plugins="">
 'use strict';
 
 const {
