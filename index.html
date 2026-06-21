@@ -301,6 +301,105 @@
 
   /* Outreach writer */
   .outreach-preview { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; font-size: 13px; line-height: 1.8; color: var(--text-2); white-space: pre-wrap; font-family: inherit; }
+
+  /* ━━ DASHBOARD ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .dashboard-hero { background: linear-gradient(135deg, #1a2fbe 0%, #4F8EF7 55%, #A78BFA 100%); border-radius: 18px; padding: 30px 36px; position: relative; overflow: hidden; min-height: 130px; display: flex; align-items: center; }
+  .dashboard-hero-orb1 { position:absolute; right:-40px; top:-60px; width:260px; height:260px; background:radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%); border-radius:50%; pointer-events:none; }
+  .dashboard-hero-orb2 { position:absolute; right:120px; bottom:-80px; width:200px; height:200px; background:radial-gradient(circle, rgba(167,139,250,0.2) 0%, transparent 70%); border-radius:50%; pointer-events:none; }
+  .dash-stat-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px 20px; transition:border-color 0.15s, transform 0.15s, box-shadow 0.15s; }
+  .dash-stat-card:hover { border-color:var(--border-2); transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.2); }
+  .dash-section { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px; }
+  .dash-section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; font-size:13px; font-weight:700; color:var(--text-1); }
+  .dash-job-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); cursor:pointer; transition:all 0.1s; border-radius:8px; }
+  .dash-job-row:last-child { border-bottom:none; }
+  .dash-job-row:hover { background:var(--surface-2); padding-left:8px; padding-right:8px; margin:0 -8px; }
+  .ai-feature-card { background:var(--bg); border:1px solid var(--border); border-radius:13px; padding:16px; cursor:pointer; position:relative; text-align:left; transition:all 0.18s; display:flex; flex-direction:column; gap:8px; overflow:hidden; }
+  .ai-feature-card::before { content:''; position:absolute; inset:0; background: var(--feat-grad, transparent); opacity:0; transition:opacity 0.18s; z-index:0; border-radius:13px; }
+  .ai-feature-card:hover { border-color:var(--feat-color, var(--accent)); transform:translateY(-3px); box-shadow:0 10px 28px rgba(0,0,0,0.25); }
+  .ai-feature-card:hover::before { opacity:0.05; }
+  .ai-feature-card > * { position:relative; z-index:1; }
+  .ai-feature-icon { width:42px; height:42px; border-radius:11px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .ai-feature-arrow { position:absolute; right:10px; top:10px; opacity:0; transition:opacity 0.15s, transform 0.15s; transform:translate(-4px, 4px); }
+  .ai-feature-card:hover .ai-feature-arrow { opacity:1; transform:translate(0, 0); }
+  .quick-action-card { background:var(--surface); border:1px solid var(--border); border-radius:13px; padding:18px 12px; cursor:pointer; text-align:center; transition:all 0.15s; display:flex; flex-direction:column; align-items:center; border-bottom:3px solid transparent; }
+  .quick-action-card:hover { border-color:var(--border-2); background:var(--surface-2); transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.2); border-bottom-color: var(--qa-color, var(--accent)); }
+  .quick-action-icon { width:46px; height:46px; background:var(--surface-2); border-radius:13px; display:flex; align-items:center; justify-content:center; transition:background 0.15s; }
+  .quick-action-card:hover .quick-action-icon { background:color-mix(in srgb, var(--qa-color, var(--accent)) 18%, transparent); }
+
+  /* ━━ RESUME BUILDER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .rb-step-btn { flex:1; padding:10px 6px; text-align:center; background:transparent; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.15s; font-size:12px; font-weight:600; color:var(--text-3); }
+  .rb-step-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .rb-step-btn.done { color:var(--success); border-bottom-color:var(--success); }
+  .exp-card { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:16px; margin-bottom:10px; }
+  .exp-card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .resume-preview { background:white; color:#1a1a1a; font-family:'Arial', sans-serif; padding:36px 44px; min-height:900px; box-shadow:0 4px 24px rgba(0,0,0,0.15); max-width:680px; margin:0 auto; }
+  .ats-feedback-item { display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-2); line-height:1.5; align-items:flex-start; }
+
+
+  /* ━━ JOB SEARCH ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .job-search-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px; transition:all 0.15s; }
+  .job-search-card:hover { border-color:var(--border-2); box-shadow:0 6px 24px rgba(0,0,0,0.2); transform:translateY(-2px); }
+  .job-type-pill { padding:3px 10px; border-radius:20px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; }
+  .job-match-ring { position:relative; display:flex; align-items:center; justify-content:center; }
+
+  /* ━━ MOCK INTERVIEW ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .interview-type-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 14px; cursor:pointer; text-align:center; transition:all 0.15s; display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .interview-type-card.selected { border-color:var(--accent); background:var(--accent-glow); }
+  .interview-type-card:hover:not(.selected) { border-color:var(--border-2); background:var(--surface-2); transform:translateY(-1px); }
+  .interview-timer { font-size:42px; font-weight:800; font-family:'JetBrains Mono', monospace; color:var(--text-1); line-height:1; letter-spacing:-0.02em; }
+  .interview-timer.warning { color:var(--warning); }
+  .interview-timer.danger { color:var(--danger); animation:accentPulse 1s ease-in-out infinite; }
+  .interview-question-card { background:var(--surface); border:2px solid var(--border); border-radius:16px; padding:24px 28px; position:relative; overflow:hidden; }
+  .interview-question-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--accent),var(--violet),#F472B6); }
+  .score-breakdown-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
+  .score-breakdown-row:last-child { border-bottom:none; }
+  @keyframes scoreReveal { from { opacity:0; transform:scale(0.7); } to { opacity:1; transform:scale(1); } }
+  .score-reveal { animation: scoreReveal 0.4s ease-out; }
+
+  @media (max-width: 1024px) {
+    .dash-main-grid { grid-template-columns: 1fr !important; }
+    .ai-features-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .quick-actions-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  }
+  @media (max-width: 768px) {
+    .dashboard-hero { padding: 20px !important; border-radius: 12px !important; }
+    .dash-stats-grid { grid-template-columns: 1fr 1fr !important; }
+    .job-search-grid { grid-template-columns: 1fr !important; }
+  }
+  @media (max-width: 480px) {
+    .dash-stats-grid { grid-template-columns: 1fr !important; }
+    .ai-features-grid { grid-template-columns: 1fr !important; }
+    .quick-actions-grid { grid-template-columns: 1fr !important; }
+    .detail-panel { width: 100% !important; }
+  }
+
+  /* Skills grid and Interview Hero responsiveness */
+  .skills-grid { display: grid; grid-template-columns: 200px 1fr; gap: 10px; align-items: start; }
+  @media (max-width: 640px) {
+    .skills-grid { grid-template-columns: 1fr !important; }
+  }
+
+  .interview-score-hero { background: linear-gradient(135deg, #1a2fbe 0%, #4F8EF7 60%, #A78BFA 100%); border-radius: 18px; padding: 30px 32px; display: flex; align-items: center; gap: 32px; }
+  @media (max-width: 640px) {
+    .interview-score-hero { flex-direction: column !important; text-align: center; gap: 16px !important; padding: 24px 20px !important; }
+  }
+
+  .resume-preview-wrap { background: #E2E8F0; border-radius: 12px; padding: 20px; overflow: auto; }
+
+  .view-container { flex: 1; overflow-y: auto; padding: 24px 28px; display: flex; flex-direction: column; gap: 22px; }
+  @media (max-width: 768px) {
+    .view-container { padding: 16px 16px !important; gap: 16px !important; }
+  }
+
+  .rb-content { flex: 1; overflow-y: auto; padding: 24px; }
+  @media (max-width: 768px) {
+    .rb-content { padding: 16px !important; }
+  }
+
+  .interview-session-container { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 28px 24px; overflow-y: auto; }
+  @media (max-width: 768px) {
+    .interview-session-container { padding: 16px 16px !important; }
+  }
 </style>
 
 <body>
@@ -455,6 +554,13 @@ const Coffee       = _icon(<><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h1
 const Trophy       = _icon(<><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></>);
 const Radio        = _icon(<><circle cx="12" cy="12" r="2"/><path d="M4.93 19.07A10 10 0 0 1 1 12 10 10 0 0 1 12 2a10 10 0 0 1 9.06 14.07"/><path d="M8.46 15.54A6 6 0 0 1 6 12a6 6 0 0 1 6-6 6 6 0 0 1 5.54 3.69"/></>);
 const Mic          = _icon(<><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></>);
+const Home         = _icon(<><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>);
+const PlayCircle   = _icon(<><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></>);
+const PauseCircle  = _icon(<><circle cx="12" cy="12" r="10"/><line x1="10" x2="10" y1="15" y2="9"/><line x1="14" x2="14" y1="15" y2="9"/></>);
+const MicOff       = _icon(<><line x1="2" x2="22" y1="2" y2="22"/><path d="M18.89 13.23A7.12 7.12 0 0 0 19 12v-2"/><path d="M5 10v2a7 7 0 0 0 12 5"/><path d="M15 9.34V5a3 3 0 0 0-5.68-1.33"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12"/><line x1="12" x2="12" y1="19" y2="22"/></>);
+const ThumbsUp     = _icon(<><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></>);
+const Flame        = _icon(<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z"/>);
+
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // CONSTANTS
@@ -479,17 +585,60 @@ const PROVIDERS = {
 };
 
 const LS = {
-  APPS:    'careerdeck_applications',
-  USER:    'careerdeck_user',
-  RESUME:  'careerdeck_base_resume',
-  INIT:    'careerdeck_initialized',
-  LOGOS:   'careerdeck_logo_cache',
+  APPS:             'careerdeck_applications',
+  USER:             'careerdeck_user',
+  RESUME:           'careerdeck_base_resume',
+  INIT:             'careerdeck_initialized',
+  LOGOS:            'careerdeck_logo_cache',
+  BUILT_RESUME:     'careerdeck_built_resume',
+  INTERVIEW_HIST:   'careerdeck_interview_history',
 };
 
 const PRIORITY_META = {
   low:    { label: 'Low',    color: '#64748B' },
   medium: { label: 'Medium', color: '#FBBF24' },
   high:   { label: 'High',   color: '#F87171' },
+};
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// MOCK JOB LISTINGS (25 curated positions with real company career URLs)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const MOCK_JOBS_DATA = [
+  { id:'mj1',  companyName:'Google',      roleName:'Senior Software Engineer',       location:'Mountain View, CA', remote:true,  salaryMin:200000, salaryMax:300000, type:'Full-time',  tags:['Python','Go','Distributed Systems','Backend','Senior'],       description:'Build and scale globally distributed infrastructure powering Search, Ads, and Cloud. Design systems handling petabyte-scale data with sub-millisecond latency alongside world-class engineers.',              requirements:['7+ years SWE','Python/Go proficiency','Distributed systems design','BS/MS CS preferred'],               posted:'2d ago', applyUrl:'https://careers.google.com',                    hot:true  },
+  { id:'mj2',  companyName:'Stripe',      roleName:'Frontend Engineer',              location:'San Francisco, CA', remote:true,  salaryMin:180000, salaryMax:240000, type:'Full-time',  tags:['React','TypeScript','GraphQL','APIs'],                         description:'Build beautiful, reliable payment UIs that power millions of businesses. Collaborate to ship delightful developer experiences and checkout flows that convert at scale.',                                     requirements:['5+ years React/TypeScript','Strong CSS/animations','API integration experience'],                         posted:'1d ago', applyUrl:'https://stripe.com/jobs',                       hot:true  },
+  { id:'mj3',  companyName:'Vercel',      roleName:'Developer Advocate',             location:'Remote',            remote:true,  salaryMin:150000, salaryMax:200000, type:'Full-time',  tags:['Next.js','DevRel','Technical Writing','React'],               description:'Evangelize Vercel and Next.js through world-class technical content, conference talks, and community engagement. Help millions of developers succeed with modern web frameworks.',                           requirements:['Strong Next.js/React','Public speaking','Technical writing','Community building'],                         posted:'3d ago', applyUrl:'https://vercel.com/careers',                    hot:false },
+  { id:'mj4',  companyName:'Anthropic',   roleName:'Software Engineer, Alignment',   location:'San Francisco, CA', remote:false, salaryMin:220000, salaryMax:350000, type:'Full-time',  tags:['Python','ML','AI Safety','Research'],                         description:'Work at the frontier of AI safety, building evaluation frameworks and alignment tools for Claude. Translate safety research insights into robust production systems.',                                         requirements:['Strong Python','ML/RL background','Research mindset','Interest in AI safety'],                            posted:'5d ago', applyUrl:'https://www.anthropic.com/careers',             hot:true  },
+  { id:'mj5',  companyName:'Linear',      roleName:'Product Designer',               location:'San Francisco, CA', remote:true,  salaryMin:150000, salaryMax:200000, type:'Full-time',  tags:['Figma','Design Systems','Motion Design','UX'],                description:'Design the future of software project management. Own end-to-end design for core features used by thousands of engineering teams. Champion simplicity and craft in every pixel.',                              requirements:['5+ years product design','Figma expert','Strong motion design','Systems thinking'],                       posted:'4d ago', applyUrl:'https://linear.app/careers',                    hot:false },
+  { id:'mj6',  companyName:'Notion',      roleName:'Full Stack Engineer',            location:'Remote',            remote:true,  salaryMin:160000, salaryMax:220000, type:'Full-time',  tags:['React','Node.js','PostgreSQL','TypeScript'],                  description:'Build the collaborative workspace that 30M+ people rely on. Tackle real-time sync, performance at scale, and rich text editing. Ship features end-to-end with high ownership.',                              requirements:['4+ years full stack','React + Node.js','PostgreSQL / distributed DBs'],                                  posted:'1w ago', applyUrl:'https://www.notion.so/careers',                 hot:false },
+  { id:'mj7',  companyName:'OpenAI',      roleName:'Software Engineer, Platform',    location:'San Francisco, CA', remote:false, salaryMin:250000, salaryMax:370000, type:'Full-time',  tags:['Python','Kubernetes','Infrastructure','APIs'],                description:'Build the platform infrastructure making AI capabilities available to millions of developers. Work on API reliability, developer experience, and the systems powering ChatGPT.',                               requirements:['5+ years SWE','Python/Go','Cloud infrastructure','API platform experience'],                               posted:'3d ago', applyUrl:'https://openai.com/careers',                    hot:true  },
+  { id:'mj8',  companyName:'Figma',       roleName:'Engineering Manager',            location:'New York, NY',      remote:false, salaryMin:220000, salaryMax:280000, type:'Full-time',  tags:['Management','Frontend','People Leadership','Craft'],          description:'Lead a high-performing engineering team building Figma\'s collaborative design editor. Drive technical direction, grow engineers, and partner with design/product.',                                          requirements:['3+ years EM experience','Strong IC background','Servant leadership','Cross-functional experience'],        posted:'2d ago', applyUrl:'https://www.figma.com/careers',                 hot:false },
+  { id:'mj9',  companyName:'Shopify',     roleName:'Senior Backend Engineer',        location:'Remote',            remote:true,  salaryMin:160000, salaryMax:220000, type:'Full-time',  tags:['Ruby','Go','GraphQL','High-Scale Systems'],                   description:'Build commerce infrastructure powering 1M+ merchants globally. Work on high-throughput systems for checkout, inventory, and payments. Own your work from design through production.',                          requirements:['5+ years backend','Ruby or Go','Distributed systems','High-traffic experience'],                           posted:'6d ago', applyUrl:'https://www.shopify.com/careers',               hot:false },
+  { id:'mj10', companyName:'Airbnb',      roleName:'iOS Engineer',                   location:'San Francisco, CA', remote:true,  salaryMin:175000, salaryMax:240000, type:'Full-time',  tags:['Swift','SwiftUI','iOS','Objective-C'],                        description:'Build the Airbnb iOS app for 150M+ users. Craft delightful, high-performance native experiences for search, booking, and hosting. Work in a world-class iOS guild.',                                         requirements:['4+ years iOS','Swift expert','SwiftUI experience','Performance optimization'],                             posted:'4d ago', applyUrl:'https://careers.airbnb.com',                    hot:false },
+  { id:'mj11', companyName:'Netflix',     roleName:'Senior Data Engineer',           location:'Remote',            remote:true,  salaryMin:210000, salaryMax:290000, type:'Full-time',  tags:['Spark','Flink','Python','Data Pipelines'],                    description:'Build data infrastructure powering personalization, A/B testing, and recommendations for 270M members. Design and operate petabyte-scale batch and streaming pipelines.',                                     requirements:['6+ years data engineering','Spark/Flink','Python','Petabyte-scale systems'],                               posted:'5d ago', applyUrl:'https://jobs.netflix.com',                      hot:false },
+  { id:'mj12', companyName:'Databricks',  roleName:'ML Engineer',                    location:'Remote',            remote:true,  salaryMin:180000, salaryMax:260000, type:'Full-time',  tags:['Python','MLflow','LLMs','Spark'],                             description:'Build ML infrastructure and LLM tooling on the Databricks Lakehouse platform. Help customers deploy, monitor, and fine-tune large language models at scale.',                                                 requirements:['ML engineering experience','Python','MLOps tools','LLM fine-tuning experience'],                           posted:'2d ago', applyUrl:'https://www.databricks.com/company/careers',    hot:true  },
+  { id:'mj13', companyName:'Discord',     roleName:'Backend Engineer, Voice & Video',location:'San Francisco, CA', remote:true,  salaryMin:170000, salaryMax:230000, type:'Full-time',  tags:['Rust','C++','WebRTC','Real-time Systems'],                    description:'Build voice and video infrastructure powering 150M+ users\' real-time communication. Work on WebRTC, low-latency audio/video, and backend systems for instant conversations.',                                requirements:['5+ years backend','Rust or C++','WebRTC/media experience','Network protocols'],                            posted:'1w ago', applyUrl:'https://discord.com/careers',                   hot:false },
+  { id:'mj14', companyName:'Canva',       roleName:'Frontend Engineer, Editor Core', location:'Remote',            remote:true,  salaryMin:155000, salaryMax:210000, type:'Full-time',  tags:['React','TypeScript','Canvas API','WebGL'],                    description:'Build Canva\'s core design editor used by 185M+ people. Work on the canvas rendering engine, drag-and-drop interactions, and real-time collaboration features.',                                             requirements:['4+ years React','TypeScript expert','Canvas/WebGL experience','Performance mindset'],                      posted:'3d ago', applyUrl:'https://www.canva.com/careers',                 hot:false },
+  { id:'mj15', companyName:'Cloudflare',  roleName:'Systems Engineer',               location:'Austin, TX',        remote:true,  salaryMin:180000, salaryMax:240000, type:'Full-time',  tags:['Rust','C','Networking','Linux Kernel'],                       description:'Build systems powering Cloudflare\'s global edge network serving 10% of the internet. Work on performance-critical networking code, eBPF programs, and distributed protocols.',                               requirements:['Systems programming (Rust/C)','Networking fundamentals','Linux internals','Performance engineering'],     posted:'6d ago', applyUrl:'https://www.cloudflare.com/careers',            hot:false },
+  { id:'mj16', companyName:'Hugging Face',roleName:'Research Engineer',              location:'Remote',            remote:true,  salaryMin:160000, salaryMax:240000, type:'Full-time',  tags:['Python','PyTorch','LLMs','Transformers'],                     description:'Push the frontier of open-source AI. Implement and optimize transformer models, build training infrastructure, and publish research that shapes the entire ML community.',                                     requirements:['Strong ML background','Python/PyTorch expert','LLM/Transformer experience','Open source contributions'],  posted:'2d ago', applyUrl:'https://apply.workable.com/huggingface',        hot:true  },
+  { id:'mj17', companyName:'Ramp',        roleName:'Product Engineer',               location:'New York, NY',      remote:true,  salaryMin:165000, salaryMax:230000, type:'Full-time',  tags:['React','TypeScript','Python','Fintech'],                      description:'Build financial products for the fastest-growing fintech startup. High-ownership role where you design, build, and ship complete features end-to-end with enormous impact.',                                  requirements:['3+ years full stack','React/TypeScript','Startup or fintech environment preferred'],                       posted:'1d ago', applyUrl:'https://ramp.com/careers',                      hot:true  },
+  { id:'mj18', companyName:'Retool',      roleName:'Senior Software Engineer',       location:'San Francisco, CA', remote:true,  salaryMin:175000, salaryMax:240000, type:'Full-time',  tags:['React','TypeScript','Node.js','Internal Tools'],              description:'Build Retool, the platform that lets companies build powerful internal tools 10x faster. Work on the visual builder, component library, data connectors, and enterprise security.',                           requirements:['5+ years SWE','React/TypeScript','Node.js','Strong product sense'],                                        posted:'3d ago', applyUrl:'https://retool.com/careers',                    hot:false },
+  { id:'mj19', companyName:'DoorDash',    roleName:'Staff Engineer, Marketplace',    location:'San Francisco, CA', remote:true,  salaryMin:220000, salaryMax:300000, type:'Full-time',  tags:['Java','Go','Microservices','Staff-level'],                    description:'Drive technical direction for marketplace systems matching millions of consumers with Dashers daily. Lead architectural decisions, mentor engineers, and operate high-traffic services.',                        requirements:['10+ years SWE','Staff-level experience','Distributed systems at scale','Marketplace domain knowledge'],   posted:'5d ago', applyUrl:'https://careers.doordash.com',                  hot:false },
+  { id:'mj20', companyName:'Amplitude',   roleName:'Data Scientist',                 location:'San Francisco, CA', remote:true,  salaryMin:150000, salaryMax:210000, type:'Full-time',  tags:['Python','SQL','A/B Testing','Product Analytics'],             description:'Turn data into product decisions at Amplitude. Drive experimentation strategy, build measurement frameworks, and influence product direction through deep analysis.',                                         requirements:['4+ years data science','Python/SQL expert','A/B testing experience','Product analytics mindset'],         posted:'1w ago', applyUrl:'https://amplitude.com/careers',                 hot:false },
+  { id:'mj21', companyName:'Grafana Labs', roleName:'Software Engineer, Observability',location:'Remote',          remote:true,  salaryMin:155000, salaryMax:215000, type:'Full-time',  tags:['Go','Prometheus','Grafana','Observability'],                  description:'Build the open-source monitoring ecosystem used by millions. Work on Grafana, Loki, Tempo, and Mimir — products helping engineers understand systems in production.',                                         requirements:['4+ years SWE','Go proficiency','Observability tools experience','Open source contributions'],              posted:'6d ago', applyUrl:'https://grafana.com/about/careers',             hot:false },
+  { id:'mj22', companyName:'Plaid',       roleName:'Security Engineer',              location:'Remote',            remote:true,  salaryMin:175000, salaryMax:235000, type:'Full-time',  tags:['Security','Python','Cloud Security','Fintech'],               description:'Protect the financial infrastructure connecting 8,000+ apps with banks. Lead threat modeling, pen testing, and security engineering for systems handling sensitive financial data.',                           requirements:['5+ years security engineering','Cloud security','Python','Financial systems preferred'],                   posted:'4d ago', applyUrl:'https://plaid.com/careers',                     hot:false },
+  { id:'mj23', companyName:'Postman',     roleName:'Engineering Manager, APIs',      location:'Remote',            remote:true,  salaryMin:190000, salaryMax:255000, type:'Full-time',  tags:['Node.js','Go','API Platform','Engineering Management'],        description:'Lead engineering teams building Postman\'s API platform used by 30M+ developers. Drive technical strategy, grow a team of senior engineers, and shape the future of API tooling.',                           requirements:['5+ years EM experience','API platform background','Node.js/Go','Track record of growing engineers'],       posted:'2d ago', applyUrl:'https://www.postman.com/company/careers',       hot:false },
+  { id:'mj24', companyName:'Pendo',       roleName:'Senior Product Manager',         location:'Remote',            remote:true,  salaryMin:155000, salaryMax:215000, type:'Full-time',  tags:['Product','Analytics','SaaS','B2B'],                           description:'Lead product strategy for Pendo\'s core analytics platform. Define roadmap, partner with engineering, and drive adoption of product experience and digital adoption tools.',                                  requirements:['4+ years PM experience','Analytics/data products','B2B SaaS','Strong user research skills'],               posted:'3d ago', applyUrl:'https://www.pendo.io/careers',                  hot:false },
+  { id:'mj25', companyName:'Loom',        roleName:'Mobile Engineer (React Native)', location:'Remote',            remote:true,  salaryMin:150000, salaryMax:205000, type:'Full-time',  tags:['React Native','TypeScript','iOS','Android'],                  description:'Build Loom mobile apps that help teams communicate asynchronously. Own mobile video recording, playback, and sharing experiences across iOS and Android platforms.',                                          requirements:['4+ years React Native','TypeScript','iOS/Android native experience a plus'],                               posted:'5d ago', applyUrl:'https://www.loom.com/careers',                  hot:false },
+];
+
+const BLANK_BUILT_RESUME = {
+  personalInfo: { name:'', email:'', phone:'', location:'', linkedin:'', website:'', targetRole:'' },
+  summary: '',
+  experience: [],
+  education: [],
+  skills: [{ id:'s1', category:'Technical Skills', items:[] }, { id:'s2', category:'Soft Skills', items:[] }],
+  projects: [],
+  certifications: [],
 };
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1410,7 +1559,7 @@ const DEF_USER = {
 };
 
 const initState = {
-  applications:[], activeView:'kanban', selectedJobId:null,
+  applications:[], activeView:'dashboard', selectedJobId:null,
   modals:{ addJob:false, aiMode:null, aiJobId:null },
   user:DEF_USER, toasts:[], filters:{ stage:'all', search:'', tags:[] },
   isCommandPaletteOpen:false
@@ -1600,10 +1749,14 @@ function Sidebar() {
   }, [applications]);
 
   const nav = [
-    { id:'kanban', label:'Kanban Board', icon:LayoutGrid },
-    { id:'list',   label:'List View',    icon:List },
-    { id:'analytics', label:'Analytics', icon:BarChart2 },
-    { id:'settings',  label:'Settings',  icon:Settings },
+    { id:'dashboard',     label:'Dashboard',      icon:Home,       group:'main' },
+    { id:'kanban',        label:'Kanban Board',   icon:LayoutGrid, group:'main' },
+    { id:'list',          label:'List View',      icon:List,       group:'main' },
+    { id:'jobsearch',     label:'Find Jobs',      icon:Search,     group:'tools' },
+    { id:'resumebuilder', label:'Resume Builder', icon:FileText,   group:'tools' },
+    { id:'mockinterview', label:'Mock Interview', icon:Mic,        group:'tools' },
+    { id:'analytics',     label:'Analytics',      icon:BarChart2,  group:'analytics' },
+    { id:'settings',      label:'Settings',       icon:Settings,   group:'analytics' },
   ];
 
   return (
@@ -1623,14 +1776,23 @@ function Sidebar() {
 
       {/* Nav */}
       <div style={{ padding:'12px 10px', flex:1, display:'flex', flexDirection:'column', gap:2 }}>
-        {nav.map(({ id, label, icon:Icon }) => (
-          <button key={id} className={`nav-item${activeView===id?' active':''}`}
-            onClick={() => dispatch({ type:A.SET_VIEW, payload:id })}
-            aria-label={label} aria-current={activeView===id?'page':undefined}>
-            {Icon && <Icon size={17} />}
-            <span className="sidebar-label">{label}</span>
-          </button>
-        ))}
+        {nav.map(({ id, label, icon:Icon, group }, i) => {
+          const prev = nav[i-1];
+          const showSep = prev && prev.group !== group;
+          return (
+            <React.Fragment key={id}>
+              {showSep && <div style={{ height:1, background:'var(--border)', margin:'6px 4px' }}/>}
+              {showSep && group === 'tools' && <div className="hidden-mobile" style={{ fontSize:9, fontWeight:700, color:'var(--text-3)', letterSpacing:'0.1em', textTransform:'uppercase', padding:'4px 8px 2px' }}>AI Tools</div>}
+              {showSep && group === 'analytics' && <div className="hidden-mobile" style={{ fontSize:9, fontWeight:700, color:'var(--text-3)', letterSpacing:'0.1em', textTransform:'uppercase', padding:'4px 8px 2px' }}>More</div>}
+              <button key={id} className={`nav-item${activeView===id?' active':''}`}
+                onClick={() => dispatch({ type:A.SET_VIEW, payload:id })}
+                aria-label={label} aria-current={activeView===id?'page':undefined}>
+                {Icon && <Icon size={17} />}
+                <span className="sidebar-label">{label}</span>
+              </button>
+            </React.Fragment>
+          );
+        })}
 
         <div className="sidebar-spacer" style={{ flex:1 }}/>
 
@@ -1775,6 +1937,1207 @@ function JobCard({ job }) {
         <span style={{ fontSize:10, color:'var(--text-3)' }}>
           {job.appliedAt ? formatRelative(job.appliedAt) : formatRelative(job.createdAt)}
         </span>
+      </div>
+    </div>
+  );
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// DASHBOARD VIEW
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function DashboardView() {
+  const { state, dispatch } = useApp();
+  const { applications, user } = state;
+
+  const stats = useMemo(() => {
+    const active = applications.filter(j => j.stage !== 'closed');
+    const withScores = applications.filter(j => j.matchScore != null);
+    const avgMatch = withScores.length > 0 ? Math.round(withScores.reduce((a,j) => a + j.matchScore, 0) / withScores.length) : 0;
+    const interviews = applications.filter(j => j.stage === 'interview').length;
+    const offers = applications.filter(j => j.stage === 'offer').length;
+    return { total:applications.length, active:active.length, avgMatch, interviews, offers };
+  }, [applications]);
+
+  const topMatches = useMemo(() =>
+    [...applications].filter(j => j.matchScore != null).sort((a,b) => b.matchScore - a.matchScore).slice(0,4)
+  , [applications]);
+
+  const recentActivity = useMemo(() =>
+    [...applications].sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt)).slice(0,5)
+  , [applications]);
+
+  const greeting = () => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; };
+  const today = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+
+  const openAI = (mode) => {
+    const job = applications[0];
+    if (job) dispatch({ type:A.SET_MODAL, payload:{ aiMode:mode, aiJobId:job.id } });
+    else dispatch({ type:A.SET_MODAL, payload:{ addJob:true } });
+  };
+
+  const AI_FEATURES = [
+    { id:'resume',      label:'Resume Tailor',       desc:'Rewrite bullets to match any JD',       color:'#4F8EF7', grad:'linear-gradient(135deg,#4F8EF7,#818CF8)', icon:Wand2 },
+    { id:'coverletter', label:'Cover Letter',         desc:'Generate tailored cover letters',       color:'#F472B6', grad:'linear-gradient(135deg,#F472B6,#EC4899)', icon:FileText },
+    { id:'ats',         label:'ATS Scanner',          desc:'Score your resume vs any job',          color:'#A78BFA', grad:'linear-gradient(135deg,#A78BFA,#8B5CF6)', icon:Target },
+    { id:'interview',   label:'Interview Coach',      desc:'15 tailored practice questions',        color:'#FBBF24', grad:'linear-gradient(135deg,#FBBF24,#F59E0B)', icon:Brain },
+    { id:'outreach',    label:'Outreach Writer',      desc:'Cold emails & LinkedIn messages',       color:'#34D399', grad:'linear-gradient(135deg,#34D399,#10B981)', icon:Mail },
+    { id:'match',       label:'Match Score',          desc:'See your fit for any role instantly',   color:'#F97316', grad:'linear-gradient(135deg,#F97316,#EF4444)', icon:BarChart2 },
+  ];
+
+  const stageMax = Math.max(...STAGES.map(s => applications.filter(j => j.stage === s).length), 1);
+
+  return (
+    <div className="view-container">
+      {/* Hero */}
+      <div className="dashboard-hero">
+        <div className="dashboard-hero-orb1"/><div className="dashboard-hero-orb2"/>
+        <div style={{ position:'relative', zIndex:1 }}>
+          <div style={{ fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.55)', textTransform:'uppercase', letterSpacing:'0.12em', marginBottom:6 }}>{today}</div>
+          <h1 style={{ fontSize:26, fontWeight:800, color:'white', letterSpacing:'-0.02em', lineHeight:1.2, marginBottom:8 }}>
+            {greeting()}{user.name ? `, ${user.name.split(' ')[0]}` : ''}! 👋
+          </h1>
+          <p style={{ fontSize:14, color:'rgba(255,255,255,0.72)', maxWidth:520, lineHeight:1.65, margin:0 }}>
+            Your AI-powered career command center.{' '}
+            {stats.active > 0 ? `You have ${stats.active} active application${stats.active !== 1 ? 's' : ''} in progress.` : 'Start tracking your dream job applications today.'}
+          </p>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="dash-stats-grid" style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:14 }}>
+        {[
+          { label:'Total Applications', val:stats.total,      icon:Briefcase,  color:'var(--accent)' },
+          { label:'Avg Match Score',    val:stats.avgMatch+'%',icon:Target,     color:'var(--success)' },
+          { label:'In Interviews',      val:stats.interviews,  icon:Users,      color:'var(--warning)' },
+          { label:'Offers Received',    val:stats.offers,      icon:Trophy,     color:'var(--violet)' },
+        ].map(s => (
+          <div key={s.label} className="dash-stat-card">
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+              <div style={{ width:36, height:36, background:`${s.color}20`, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                {s.icon && <s.icon size={17} style={{ color:s.color }}/>}
+              </div>
+              <span className="mono" style={{ fontSize:26, fontWeight:800, color:'var(--text-1)' }}>{s.val}</span>
+            </div>
+            <div style={{ fontSize:11, fontWeight:600, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.06em' }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Main grid */}
+      <div className="dash-main-grid" style={{ display:'grid', gridTemplateColumns:'1fr 340px', gap:20 }}>
+        <div style={{ display:'flex', flexDirection:'column', gap:18 }}>
+          {/* AI Features */}
+          <div className="dash-section">
+            <div className="dash-section-header">
+              <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+                {Sparkles && <Sparkles size={15} style={{ color:'var(--accent)' }}/>}
+                <span>AI Superpowers</span>
+              </div>
+              <span style={{ fontSize:11, color:'var(--text-3)', fontWeight:400 }}>Click any to try it on your tracked jobs</span>
+            </div>
+            <div className="ai-features-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:10 }}>
+              {AI_FEATURES.map(f => (
+                <button key={f.id} className="ai-feature-card" style={{ '--feat-color':f.color, '--feat-grad':f.grad }} onClick={() => openAI(f.id)}>
+                  <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                    <div className="ai-feature-icon" style={{ background:f.grad }}>
+                      {f.icon && <f.icon size={17} style={{ color:'white' }}/>}
+                    </div>
+                    <div style={{ fontWeight:700, fontSize:13, color:'var(--text-1)' }}>{f.label}</div>
+                  </div>
+                  <div style={{ fontSize:11, color:'var(--text-3)', lineHeight:1.5 }}>{f.desc}</div>
+                  <div className="ai-feature-arrow">{ChevronRight && <ChevronRight size={13} style={{ color:f.color }}/>}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div>
+            <div style={{ fontSize:12, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:12 }}>Quick Actions</div>
+            <div className="quick-actions-grid" style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:10 }}>
+              {[
+                { label:'Build Resume',      icon:FileText,   view:'resumebuilder', color:'#4F8EF7', desc:'AI-powered wizard'   },
+                { label:'Find Jobs',         icon:Search,     view:'jobsearch',     color:'#34D399', desc:'25+ live openings'  },
+                { label:'Practice Interview',icon:Mic,        view:'mockinterview', color:'#F472B6', desc:'AI scoring & tips'  },
+                { label:'Track a Job',       icon:Plus,       modal:true,           color:'#FBBF24', desc:'Add to Kanban board' },
+              ].map(qa => (
+                <button key={qa.label} className="quick-action-card" style={{ '--qa-color':qa.color }}
+                  onClick={() => qa.modal ? dispatch({ type:A.SET_MODAL, payload:{ addJob:true } }) : dispatch({ type:A.SET_VIEW, payload:qa.view })}>
+                  <div className="quick-action-icon">
+                    {qa.icon && <qa.icon size={20} style={{ color:qa.color }}/>}
+                  </div>
+                  <div style={{ fontWeight:700, fontSize:12, color:'var(--text-1)', marginTop:10 }}>{qa.label}</div>
+                  <div style={{ fontSize:10, color:'var(--text-3)', marginTop:2 }}>{qa.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right column */}
+        <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+          {/* Top Matches */}
+          <div className="dash-section">
+            <div className="dash-section-header">
+              <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                {Flame && <Flame size={14} style={{ color:'var(--warning)' }}/>}
+                <span>Top Matches</span>
+              </div>
+              <button className="btn btn-ghost btn-sm" style={{ fontSize:11 }} onClick={() => dispatch({ type:A.SET_VIEW, payload:'jobsearch' })}>
+                Find Jobs {ChevronRight && <ChevronRight size={12}/>}
+              </button>
+            </div>
+            {topMatches.length === 0 ? (
+              <div style={{ padding:'20px 0', textAlign:'center', color:'var(--text-3)', fontSize:13, lineHeight:1.7 }}>
+                <div style={{ fontSize:28, marginBottom:8 }}>🎯</div>
+                Add jobs and run the Match Score AI to see top picks here.
+              </div>
+            ) : topMatches.map(job => (
+              <div key={job.id} className="dash-job-row" onClick={() => dispatch({ type:A.SELECT_JOB, payload:job.id })}>
+                <CompanyLogo name={job.companyName} size={28}/>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:12, fontWeight:700, color:'var(--text-1)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{job.companyName}</div>
+                  <div style={{ fontSize:10, color:'var(--text-3)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{job.roleName}</div>
+                </div>
+                <div className="mono" style={{ fontSize:12, fontWeight:800, color:getScoreColor(job.matchScore), flexShrink:0 }}>{job.matchScore}%</div>
+              </div>
+            ))}
+            <button className="btn btn-secondary btn-sm" style={{ width:'100%', marginTop:8, fontSize:12 }}
+              onClick={() => dispatch({ type:A.SET_VIEW, payload:'jobsearch' })}>
+              {Search && <Search size={12}/>} Browse 25+ Job Openings
+            </button>
+          </div>
+
+          {/* Pipeline */}
+          <div className="dash-section">
+            <div className="dash-section-header">
+              <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                {Activity && <Activity size={14} style={{ color:'var(--accent)' }}/>}
+                <span>Your Pipeline</span>
+              </div>
+              <button className="btn btn-ghost btn-sm" style={{ fontSize:11 }} onClick={() => dispatch({ type:A.SET_VIEW, payload:'kanban' })}>
+                Board {ChevronRight && <ChevronRight size={12}/>}
+              </button>
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:7 }}>
+              {STAGES.map(s => {
+                const count = applications.filter(j => j.stage === s).length;
+                const meta = STAGE_META[s];
+                return (
+                  <div key={s} style={{ display:'flex', alignItems:'center', gap:8 }}>
+                    <div style={{ width:7, height:7, borderRadius:'50%', background:meta.color, flexShrink:0 }}/>
+                    <div style={{ fontSize:11, color:'var(--text-2)', width:68, flexShrink:0 }}>{meta.label}</div>
+                    <div style={{ flex:1, height:5, background:'var(--border)', borderRadius:3, overflow:'hidden' }}>
+                      <div style={{ width:`${(count/stageMax)*100}%`, height:'100%', background:meta.color, borderRadius:3, transition:'width 1s ease-out' }}/>
+                    </div>
+                    <div className="mono" style={{ fontSize:11, fontWeight:600, color:'var(--text-3)', width:16, textAlign:'right', flexShrink:0 }}>{count}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Recent Activity */}
+          {recentActivity.length > 0 && (
+            <div className="dash-section">
+              <div className="dash-section-header">
+                <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                  {Activity && <Activity size={14} style={{ color:'var(--violet)' }}/>}
+                  <span>Recent Activity</span>
+                </div>
+              </div>
+              <div style={{ display:'flex', flexDirection:'column', gap:0 }}>
+                {recentActivity.map(job => (
+                  <div key={job.id} className="dash-job-row" onClick={() => dispatch({ type:A.SELECT_JOB, payload:job.id })}>
+                    <div style={{ width:7, height:7, borderRadius:'50%', background:STAGE_META[job.stage].color, flexShrink:0 }}/>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ fontSize:12, fontWeight:600, color:'var(--text-1)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{job.companyName}</div>
+                      <div style={{ fontSize:10, color:'var(--text-3)' }}>{formatRelative(job.updatedAt)}</div>
+                    </div>
+                    <span className="stage-pill" style={{ fontSize:9, padding:'2px 7px', background:STAGE_META[job.stage].bg, color:STAGE_META[job.stage].color, border:'none' }}>{STAGE_META[job.stage].label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// JOB SEARCH VIEW
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function JobSearchView() {
+  const { state, dispatch, addToast } = useApp();
+  const { user, applications } = state;
+  const [keyword,  setKeyword]  = useState('');
+  const [location, setLocation] = useState('');
+  const [remoteOnly, setRemoteOnly] = useState(false);
+  const [salaryMin, setSalaryMin] = useState('');
+  const [jobType,  setJobType]  = useState('All');
+  const [scoring,  setScoring]  = useState(null); // jobId being scored
+  const [scores,   setScores]   = useState({});   // { jobId: { score, reason } }
+  const [expanded, setExpanded] = useState(null);
+
+  const JOB_TYPES = ['All','Full-time','Contract','Part-time'];
+
+  const filtered = useMemo(() => {
+    let list = [...MOCK_JOBS_DATA];
+    if (keyword)    list = list.filter(j => (j.roleName+j.companyName+j.tags.join(' ')+j.description).toLowerCase().includes(keyword.toLowerCase()));
+    if (location)   list = list.filter(j => j.location.toLowerCase().includes(location.toLowerCase()) || (j.remote && 'remote'.includes(location.toLowerCase())));
+    if (remoteOnly) list = list.filter(j => j.remote);
+    if (salaryMin)  list = list.filter(j => !j.salaryMin || j.salaryMin >= Number(salaryMin)*1000);
+    if (jobType !== 'All') list = list.filter(j => j.type === jobType);
+    return list;
+  }, [keyword, location, remoteOnly, salaryMin, jobType]);
+
+  const scoreJob = async (job) => {
+    if (!user.apiKey) { addToast('Add an API key in Settings to score jobs', 'warning'); return; }
+    const baseResume = ls_get(LS.RESUME, '');
+    const builtResume = ls_get(LS.BUILT_RESUME, null);
+    const resumeText = baseResume || (builtResume ? `${builtResume.personalInfo?.name}\n${builtResume.summary}\nSkills: ${builtResume.skills?.map(s => s.items?.join(', ')).join(', ')}` : '');
+    if (!resumeText) { addToast('Add your resume in Settings first', 'warning'); return; }
+    setScoring(job.id);
+    try {
+      const sys = 'You are a career coach. Analyze the match between a candidate\'s resume and a job listing. Return ONLY valid JSON: {"score": number (0-100), "reason": "2-sentence explanation of the match"}';
+      const msg = `Resume:\n${resumeText.slice(0,2000)}\n\nJob: ${job.roleName} at ${job.companyName}\nRequirements: ${job.requirements?.join(', ')}`;
+      let full = '';
+      await callLLM(sys, msg, t => { full = t; }, { provider:user.llmProvider, model:user.llmModel, apiKey:user.apiKey });
+      const result = parseAIJSON(full);
+      setScores(prev => ({ ...prev, [job.id]: result }));
+      addToast(`Match: ${result.score}% for ${job.companyName}`, result.score >= 70 ? 'success' : 'ai');
+    } catch(e) {
+      addToast('Score failed. Check API key.', 'error');
+    } finally {
+      setScoring(null);
+    }
+  };
+
+  const addToTracker = (job) => {
+    if (applications.find(a => a.roleName === job.roleName && a.companyName === job.companyName)) {
+      addToast('Job already tracked!', 'warning'); return;
+    }
+    const newJob = {
+      id:uid(), createdAt:now(), updatedAt:now(), activityLog:[], contacts:[], interviewRounds:[],
+      followUpDate:null, followUpSent:false, matchScore:scores[job.id]?.score||null, atsSuggestions:[], resumeText:'', coverLetter:'', companyLogo:'', jdSummary:'',
+      companyName:job.companyName, roleName:job.roleName, location:job.location, remote:job.remote,
+      salaryMin:job.salaryMin, salaryMax:job.salaryMax, jdText:job.description, tags:job.tags, notes:'', stage:'saved', priority:'medium', jobUrl:job.applyUrl, appliedAt:null,
+    };
+    dispatch({ type:A.ADD_JOB, payload:newJob });
+    addToast(`Added ${job.companyName} to tracker!`, 'success');
+  };
+
+  return (
+    <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden' }}>
+      {/* Header */}
+      <div style={{ padding:'18px 24px', borderBottom:'1px solid var(--border)', flexShrink:0 }}>
+        <h1 style={{ fontSize:20, fontWeight:800, color:'var(--text-1)', letterSpacing:'-0.02em', marginBottom:4 }}>
+          {Search && <Search size={18} style={{ display:'inline', marginRight:8, color:'var(--success)' }}/>}Find Jobs
+        </h1>
+        <p style={{ fontSize:12, color:'var(--text-3)', margin:0 }}>{filtered.length} of {MOCK_JOBS_DATA.length} openings · All remote-friendly tech positions · Direct apply links to company career pages</p>
+      </div>
+
+      {/* Filter Bar */}
+      <div style={{ padding:'14px 24px', borderBottom:'1px solid var(--border)', flexShrink:0, display:'flex', gap:10, flexWrap:'wrap', alignItems:'center' }}>
+        <div style={{ position:'relative', flex:2, minWidth:180 }}>
+          <div style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none' }}>{Search && <Search size={14}/>}</div>
+          <input className="field-input" style={{ paddingLeft:34, fontSize:13 }} placeholder="Role, company, or skill…" value={keyword} onChange={e => setKeyword(e.target.value)}/>
+        </div>
+        <div style={{ position:'relative', flex:1, minWidth:140 }}>
+          <div style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none' }}>{MapPin && <MapPin size={14}/>}</div>
+          <input className="field-input" style={{ paddingLeft:34, fontSize:13 }} placeholder="Location…" value={location} onChange={e => setLocation(e.target.value)}/>
+        </div>
+        <select className="field-input" style={{ width:130, fontSize:13 }} value={jobType} onChange={e => setJobType(e.target.value)}>
+          {JOB_TYPES.map(t => <option key={t}>{t}</option>)}
+        </select>
+        <div style={{ position:'relative', flex:'none', width:130 }}>
+          <div style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none' }}>{DollarSign && <DollarSign size={13}/>}</div>
+          <input className="field-input mono" style={{ paddingLeft:28, fontSize:13 }} placeholder="Min salary (K)" type="number" value={salaryMin} onChange={e => setSalaryMin(e.target.value)}/>
+        </div>
+        <label style={{ display:'flex', alignItems:'center', gap:7, cursor:'pointer', fontSize:13, color:'var(--text-2)', whiteSpace:'nowrap', flexShrink:0 }}>
+          <input type="checkbox" checked={remoteOnly} onChange={e => setRemoteOnly(e.target.checked)}/> Remote only
+        </label>
+        {(keyword||location||remoteOnly||salaryMin||jobType!=='All') && (
+          <button className="btn btn-ghost btn-sm" onClick={() => { setKeyword(''); setLocation(''); setRemoteOnly(false); setSalaryMin(''); setJobType('All'); }}>
+            {X && <X size={12}/>} Clear
+          </button>
+        )}
+      </div>
+
+      {/* Job Cards */}
+      <div style={{ flex:1, overflowY:'auto', padding:'20px 24px' }}>
+        {filtered.length === 0 ? (
+          <div style={{ textAlign:'center', padding:'60px 0', color:'var(--text-3)', fontSize:14 }}>
+            <div style={{ fontSize:40, marginBottom:12 }}>🔍</div>
+            No jobs match your filters. Try adjusting search terms.
+          </div>
+        ) : (
+          <div className="job-search-grid" style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(440px, 1fr))', gap:14 }}>
+            {filtered.map(job => {
+              const isExpanded = expanded === job.id;
+              const matchData = scores[job.id];
+              const alreadyTracked = applications.some(a => a.roleName === job.roleName && a.companyName === job.companyName);
+              return (
+                <div key={job.id} className="job-search-card">
+                  <div style={{ display:'flex', alignItems:'flex-start', gap:12, marginBottom:12 }}>
+                    <CompanyLogo name={job.companyName} size={40}/>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap', marginBottom:3 }}>
+                        <span style={{ fontSize:15, fontWeight:800, color:'var(--text-1)' }}>{job.roleName}</span>
+                        {job.hot && <span style={{ fontSize:9, fontWeight:700, background:'linear-gradient(90deg,#F97316,#EF4444)', color:'white', padding:'2px 7px', borderRadius:10, textTransform:'uppercase', letterSpacing:'0.06em' }}>🔥 Hot</span>}
+                      </div>
+                      <div style={{ fontSize:13, fontWeight:600, color:'var(--text-2)', marginBottom:4 }}>{job.companyName}</div>
+                      <div style={{ display:'flex', gap:8, flexWrap:'wrap', alignItems:'center' }}>
+                        <span style={{ fontSize:11, color:'var(--text-3)', display:'flex', alignItems:'center', gap:3 }}>{MapPin && <MapPin size={11}/>}{job.location}</span>
+                        {job.remote && <span className="job-type-pill" style={{ background:'rgba(52,211,153,0.15)', color:'var(--success)' }}>Remote</span>}
+                        <span className="job-type-pill" style={{ background:'var(--surface-2)', color:'var(--text-3)' }}>{job.type}</span>
+                        {job.salaryMin && <span className="mono" style={{ fontSize:11, color:'var(--text-2)', fontWeight:600 }}>${(job.salaryMin/1000).toFixed(0)}K–${(job.salaryMax/1000).toFixed(0)}K</span>}
+                      </div>
+                    </div>
+                    {matchData && (
+                      <div style={{ textAlign:'center', flexShrink:0 }}>
+                        <div className="mono" style={{ fontSize:18, fontWeight:800, color:getScoreColor(matchData.score), lineHeight:1 }}>{matchData.score}%</div>
+                        <div style={{ fontSize:9, color:'var(--text-3)', fontWeight:600, textTransform:'uppercase' }}>Match</div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ display:'flex', gap:5, flexWrap:'wrap', marginBottom:10 }}>
+                    {job.tags.slice(0,4).map(t => <span key={t} className="tag-chip" style={{ fontSize:10 }}>{t}</span>)}
+                  </div>
+
+                  <div style={{ fontSize:12, color:'var(--text-3)', lineHeight:1.6, marginBottom:10, display: isExpanded ? 'block' : '-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden' }}>
+                    {job.description}
+                  </div>
+                  <button className="btn btn-ghost btn-sm" style={{ fontSize:11, padding:'2px 0', marginBottom:8 }} onClick={() => setExpanded(isExpanded ? null : job.id)}>
+                    {isExpanded ? 'Show less' : 'Show more'}
+                  </button>
+
+                  {isExpanded && job.requirements && (
+                    <div style={{ marginBottom:12 }}>
+                      <div style={{ fontSize:11, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:6 }}>Requirements</div>
+                      <div style={{ display:'flex', flexDirection:'column', gap:3 }}>
+                        {job.requirements.map((r,i) => (
+                          <div key={i} style={{ display:'flex', gap:8, alignItems:'flex-start', fontSize:12, color:'var(--text-2)' }}>
+                            <span style={{ color:'var(--success)', flexShrink:0, marginTop:2 }}>✓</span>{r}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {matchData?.reason && isExpanded && (
+                    <div style={{ background:'var(--accent-glow)', border:'1px solid rgba(79,142,247,0.2)', borderRadius:8, padding:'10px 12px', fontSize:12, color:'var(--text-2)', lineHeight:1.6, marginBottom:10 }}>
+                      {Sparkles && <Sparkles size={11} style={{ display:'inline', marginRight:5, color:'var(--accent)' }}/>}{matchData.reason}
+                    </div>
+                  )}
+
+                  <div style={{ display:'flex', gap:8, paddingTop:8, borderTop:'1px solid var(--border)' }}>
+                    <a href={job.applyUrl} target="_blank" rel="noopener noreferrer"
+                      className="btn btn-primary" style={{ flex:1, textDecoration:'none', justifyContent:'center', fontSize:13 }}>
+                      {ExternalLink && <ExternalLink size={13}/>} Apply Now
+                    </a>
+                    <button className="btn btn-secondary" style={{ fontSize:12 }}
+                      onClick={() => scoreJob(job)} disabled={scoring === job.id} title="Score your match with AI">
+                      {scoring === job.id ? <Spinner size={12}/> : (Target && <Target size={13}/>)}
+                      {matchData ? 'Re-score' : 'AI Score'}
+                    </button>
+                    <button className="btn btn-ghost" style={{ fontSize:12 }}
+                      onClick={() => addToTracker(job)} disabled={alreadyTracked} title={alreadyTracked ? 'Already tracked' : 'Add to tracker'}>
+                      {alreadyTracked ? (CheckCircle && <CheckCircle size={13} style={{ color:'var(--success)' }}/>) : (Plus && <Plus size={13}/>)}
+                    </button>
+                  </div>
+                  <div style={{ fontSize:10, color:'var(--text-3)', marginTop:6, textAlign:'right' }}>Posted {job.posted}</div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// RESUME BUILDER VIEW
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function ResumeBuilderView() {
+  const { state, addToast } = useApp();
+  const { user } = state;
+  const [step, setStep] = useState(0);
+  const [data, setData] = useState(() => ls_get(LS.BUILT_RESUME, null) || BLANK_BUILT_RESUME);
+  const [generating, setGenerating] = useState('');
+  const [atsResult, setAtsResult]   = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
+
+  const save = (next) => { ls_set(LS.BUILT_RESUME, next); setData(next); };
+  const upPersonal = (f, v) => save({ ...data, personalInfo: { ...data.personalInfo, [f]:v } });
+  const STEPS = ['Personal Info','Summary','Experience','Education & Skills','Projects & Export'];
+
+  // AI helpers
+  const genSummary = async () => {
+    if (!user.apiKey) { addToast('Add API key in Settings','warning'); return; }
+    setGenerating('summary');
+    try {
+      const sys = 'You are a professional resume writer. Write a compelling 3-sentence professional summary optimized for ATS. Return ONLY the summary text, no quotes, no explanation.';
+      const msg = `Target role: ${data.personalInfo.targetRole||'Software Engineer'}
+Experience: ${data.experience.map(e=>`${e.role} at ${e.company}`).join(', ')||'Not provided'}
+Skills: ${data.skills.flatMap(s=>s.items||[]).join(', ')||'Not provided'}`;
+      let full = '';
+      await callLLM(sys, msg, t => { full = t; }, { provider:user.llmProvider, model:user.llmModel, apiKey:user.apiKey });
+      save({ ...data, summary: full.trim() });
+      addToast('Summary generated!','ai');
+    } catch(e) { addToast('Generation failed','error'); }
+    finally { setGenerating(''); }
+  };
+
+  const genBullets = async (idx) => {
+    if (!user.apiKey) { addToast('Add API key in Settings','warning'); return; }
+    setGenerating('bullets-'+idx);
+    const exp = data.experience[idx];
+    try {
+      const sys = 'You are an expert resume writer. Generate 4 strong STAR-format achievement bullets. Return ONLY a JSON array of strings, no markdown: ["bullet 1","bullet 2","bullet 3","bullet 4"]';
+      const msg = `Role: ${exp.role}\nCompany: ${exp.company}\nDates: ${exp.dates}\nTarget role I am applying for: ${data.personalInfo.targetRole||''}`;
+      let full = '';
+      await callLLM(sys, msg, t => { full = t; }, { provider:user.llmProvider, model:user.llmModel, apiKey:user.apiKey });
+      const bullets = parseAIJSON(full);
+      const updated = data.experience.map((e,i) => i===idx ? { ...e, bullets } : e);
+      save({ ...data, experience:updated });
+      addToast('Bullets generated!','ai');
+    } catch(e) { addToast('Generation failed','error'); }
+    finally { setGenerating(''); }
+  };
+
+  const runATS = async () => {
+    if (!user.apiKey) { addToast('Add API key in Settings','warning'); return; }
+    setGenerating('ats');
+    try {
+      const sys = 'You are an ATS (Applicant Tracking System) expert. Analyze this resume and return ONLY valid JSON: {"score":number,"issues":["issue1","issue2"],"strengths":["str1","str2"],"keywords_missing":["kw1"]}';
+      const resumeText = `${data.personalInfo.name} — ${data.personalInfo.targetRole}\n${data.summary}\n${data.experience.map(e=>`${e.role} at ${e.company} (${e.dates}): ${(e.bullets||[]).join('; ')}`).join('\n')}\nSkills: ${data.skills.flatMap(s=>s.items||[]).join(', ')}`;
+      let full = '';
+      await callLLM(sys, `Analyze for ATS compatibility:\n\n${resumeText}`, t => { full = t; }, { provider:user.llmProvider, model:user.llmModel, apiKey:user.apiKey });
+      const result = parseAIJSON(full);
+      setAtsResult(result);
+      addToast(`ATS Score: ${result.score}/100`, result.score >= 70 ? 'success' : 'warning');
+    } catch(e) { addToast('ATS analysis failed','error'); }
+    finally { setGenerating(''); }
+  };
+
+  const addExp = () => save({ ...data, experience:[...data.experience, { id:uid(), role:'', company:'', dates:'', location:'', bullets:[''] }] });
+  const removeExp = (id) => save({ ...data, experience:data.experience.filter(e=>e.id!==id) });
+  const upExp = (id, f, v) => save({ ...data, experience:data.experience.map(e=>e.id===id?{...e,[f]:v}:e) });
+  const upExpBullet = (id, i, v) => save({ ...data, experience:data.experience.map(e=>e.id===id?{...e,bullets:e.bullets.map((b,bi)=>bi===i?v:b)}:e) });
+  const addExpBullet = (id) => save({ ...data, experience:data.experience.map(e=>e.id===id?{...e,bullets:[...e.bullets,'']}:e) });
+  const removeExpBullet = (id, i) => save({ ...data, experience:data.experience.map(e=>e.id===id?{...e,bullets:e.bullets.filter((_,bi)=>bi!==i)}:e) });
+  const addEdu = () => save({ ...data, education:[...data.education, { id:uid(), degree:'', school:'', dates:'', location:'', gpa:'' }] });
+  const removeEdu = (id) => save({ ...data, education:data.education.filter(e=>e.id!==id) });
+  const upEdu = (id, f, v) => save({ ...data, education:data.education.map(e=>e.id===id?{...e,[f]:v}:e) });
+  const upSkill = (id, f, v) => save({ ...data, skills:data.skills.map(s=>s.id===id?{...s,[f]:v}:s) });
+  const upSkillItems = (id, v) => save({ ...data, skills:data.skills.map(s=>s.id===id?{...s,items:v.split(',').map(x=>x.trim()).filter(Boolean)}:s) });
+  const addProj = () => save({ ...data, projects:[...data.projects, { id:uid(), name:'', url:'', description:'', tech:'' }] });
+  const removeProj = (id) => save({ ...data, projects:data.projects.filter(p=>p.id!==id) });
+  const upProj = (id, f, v) => save({ ...data, projects:data.projects.map(p=>p.id===id?{...p,[f]:v}:p) });
+
+  const exportPDF = () => {
+    if (typeof exportResumeAsPDF === 'function') {
+      exportResumeAsPDF(data, data.personalInfo?.name || 'Resume');
+    } else {
+      const el = document.getElementById('rb-preview-content');
+      if (el && window.print) {
+        const w = window.open('','','width=800,height=900');
+        w.document.write('<html><head><title>Resume</title><style>body{font-family:Arial,sans-serif;margin:40px;color:#1a1a1a;}h1{font-size:22px;margin:0;}h2{font-size:14px;border-bottom:1px solid #ddd;padding-bottom:4px;}ul{margin:4px 0;padding-left:18px;}p{margin:4px 0;font-size:12px;}</style></head><body>');
+        w.document.write(el.innerHTML);
+        w.document.write('</body></html>');
+        w.document.close();
+        w.print();
+        w.close();
+      }
+    }
+  };
+
+  const P = data.personalInfo;
+
+  const renderStep = () => {
+    switch(step) {
+      case 0: return (
+        <div style={{ display:'flex', flexDirection:'column', gap:16, maxWidth:600 }}>
+          <div style={{ background:'var(--accent-glow)', border:'1px solid rgba(79,142,247,0.3)', borderRadius:10, padding:'12px 16px', fontSize:13, color:'var(--text-2)', lineHeight:1.6 }}>
+            <strong style={{ color:'var(--accent)' }}>Step 1 of 5:</strong> Enter your personal information. This forms the header of your resume.
+          </div>
+          <div className="responsive-grid-2">
+            <div className="field-group"><label className="field-label">Full Name *</label><input className="field-input" value={P.name} onChange={e=>upPersonal('name',e.target.value)} placeholder="Jane Doe"/></div>
+            <div className="field-group"><label className="field-label">Target Role *</label><input className="field-input" value={P.targetRole} onChange={e=>upPersonal('targetRole',e.target.value)} placeholder="Senior Software Engineer"/></div>
+            <div className="field-group"><label className="field-label">Email *</label><input className="field-input" type="email" value={P.email} onChange={e=>upPersonal('email',e.target.value)} placeholder="jane@example.com"/></div>
+            <div className="field-group"><label className="field-label">Phone</label><input className="field-input" value={P.phone} onChange={e=>upPersonal('phone',e.target.value)} placeholder="+1 (555) 000-0000"/></div>
+            <div className="field-group"><label className="field-label">Location</label><input className="field-input" value={P.location} onChange={e=>upPersonal('location',e.target.value)} placeholder="San Francisco, CA"/></div>
+            <div className="field-group"><label className="field-label">LinkedIn URL</label><input className="field-input" value={P.linkedin} onChange={e=>upPersonal('linkedin',e.target.value)} placeholder="linkedin.com/in/janedoe"/></div>
+            <div className="field-group" style={{ gridColumn:'1/-1' }}><label className="field-label">Website / Portfolio</label><input className="field-input" value={P.website} onChange={e=>upPersonal('website',e.target.value)} placeholder="https://janedoe.dev"/></div>
+          </div>
+        </div>
+      );
+      case 1: return (
+        <div style={{ display:'flex', flexDirection:'column', gap:16, maxWidth:700 }}>
+          <div style={{ background:'var(--accent-glow)', border:'1px solid rgba(79,142,247,0.3)', borderRadius:10, padding:'12px 16px', fontSize:13, color:'var(--text-2)', lineHeight:1.6 }}>
+            <strong style={{ color:'var(--accent)' }}>Step 2 of 5:</strong> Write or AI-generate your professional summary. This is the most-read section — make it count.
+          </div>
+          <div className="field-group">
+            <label className="field-label" style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <span>Professional Summary</span>
+              <span style={{ fontSize:11, color:'var(--text-3)', fontWeight:400 }}>{data.summary.length} chars</span>
+            </label>
+            <textarea className="field-input" style={{ minHeight:140, lineHeight:1.7, fontSize:13 }} value={data.summary} onChange={e=>save({...data,summary:e.target.value})} placeholder="Experienced software engineer with 6+ years building scalable distributed systems…"/>
+          </div>
+          <div style={{ display:'flex', gap:10 }}>
+            <Btn variant="primary" onClick={genSummary} disabled={generating==='summary'}>
+              {generating==='summary' ? <Spinner size={14}/> : (Sparkles && <Sparkles size={14}/>)}
+              {data.summary ? 'Regenerate with AI' : 'Generate with AI'}
+            </Btn>
+          </div>
+          <div style={{ background:'var(--bg)', border:'1px solid var(--border)', borderRadius:8, padding:'12px 14px' }}>
+            <div style={{ fontSize:11, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:6 }}>ATS Tips</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+              {['Include your target job title in the first sentence','Use active verbs: developed, architected, drove, scaled','Mention 2–3 key skills matching the target role','Keep it 3–4 sentences (50–80 words optimal)'].map((t,i) => (
+                <div key={i} style={{ fontSize:12, color:'var(--text-2)', display:'flex', gap:8 }}><span style={{ color:'var(--success)' }}>✓</span>{t}</div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+      case 2: return (
+        <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+            <div>
+              <div style={{ fontSize:15, fontWeight:700, color:'var(--text-1)' }}>Work Experience</div>
+              <div style={{ fontSize:12, color:'var(--text-3)', marginTop:2 }}>Add positions in reverse chronological order (most recent first)</div>
+            </div>
+            <Btn variant="secondary" onClick={addExp}>{Plus && <Plus size={14}/>} Add Position</Btn>
+          </div>
+          {data.experience.length === 0 && (
+            <div style={{ textAlign:'center', padding:'40px 0', color:'var(--text-3)', fontSize:13 }}>
+              <div style={{ fontSize:32, marginBottom:8 }}>💼</div>No positions yet. Click Add Position to start.
+            </div>
+          )}
+          {data.experience.map((exp, idx) => (
+            <div key={exp.id} className="exp-card">
+              <div className="exp-card-header">
+                <div style={{ fontSize:13, fontWeight:700, color:'var(--text-1)' }}>Position {idx+1}</div>
+                <div style={{ display:'flex', gap:8 }}>
+                  <Btn size="sm" variant="primary" style={{ background:'var(--violet)', color:'white' }} onClick={()=>genBullets(idx)} disabled={!!generating}>
+                    {generating===`bullets-${idx}` ? <Spinner size={12}/> : (Sparkles && <Sparkles size={12}/>)}
+                    AI Bullets
+                  </Btn>
+                  <Btn size="sm" variant="ghost" onClick={()=>removeExp(exp.id)}>{Trash2 && <Trash2 size={12}/>}</Btn>
+                </div>
+              </div>
+              <div className="responsive-grid-2" style={{ gap:10, marginBottom:10 }}>
+                <div className="field-group"><label className="field-label">Job Title *</label><input className="field-input" value={exp.role} onChange={e=>upExp(exp.id,'role',e.target.value)} placeholder="Software Engineer"/></div>
+                <div className="field-group"><label className="field-label">Company *</label><input className="field-input" value={exp.company} onChange={e=>upExp(exp.id,'company',e.target.value)} placeholder="Acme Corp"/></div>
+                <div className="field-group"><label className="field-label">Dates</label><input className="field-input" value={exp.dates} onChange={e=>upExp(exp.id,'dates',e.target.value)} placeholder="Jan 2022 – Present"/></div>
+                <div className="field-group"><label className="field-label">Location</label><input className="field-input" value={exp.location} onChange={e=>upExp(exp.id,'location',e.target.value)} placeholder="San Francisco, CA (Remote)"/></div>
+              </div>
+              <div className="field-group">
+                <label className="field-label">Bullet Points</label>
+                {(exp.bullets||['']).map((b, bi) => (
+                  <div key={bi} style={{ display:'flex', gap:6, marginBottom:6, alignItems:'center' }}>
+                    <span style={{ color:'var(--text-3)', fontSize:16, flexShrink:0 }}>•</span>
+                    <input className="field-input" style={{ flex:1 }} value={b} onChange={e=>upExpBullet(exp.id,bi,e.target.value)} placeholder="Achieved X by doing Y, resulting in Z…"/>
+                    <button className="btn btn-ghost btn-icon btn-sm" onClick={()=>removeExpBullet(exp.id,bi)} disabled={(exp.bullets||[]).length<=1}>{Trash2 && <Trash2 size={11}/>}</button>
+                  </div>
+                ))}
+                <button className="btn btn-ghost btn-sm" style={{ marginTop:4 }} onClick={()=>addExpBullet(exp.id)}>{Plus && <Plus size={12}/>} Add bullet</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+      case 3: return (
+        <div style={{ display:'flex', flexDirection:'column', gap:24 }}>
+          {/* Education */}
+          <div>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+              <div style={{ fontSize:15, fontWeight:700, color:'var(--text-1)' }}>Education</div>
+              <Btn variant="secondary" onClick={addEdu}>{Plus && <Plus size={14}/>} Add Education</Btn>
+            </div>
+            {data.education.length === 0 && (
+              <div style={{ textAlign:'center', padding:'24px 0', color:'var(--text-3)', fontSize:13 }}>
+                <div style={{ fontSize:28, marginBottom:6 }}>🎓</div>No education entries yet.
+              </div>
+            )}
+            {data.education.map((edu) => (
+              <div key={edu.id} className="exp-card">
+                <div className="responsive-grid-2" style={{ gap:10 }}>
+                  <div className="field-group"><label className="field-label">Degree / Certificate *</label><input className="field-input" value={edu.degree} onChange={e=>upEdu(edu.id,'degree',e.target.value)} placeholder="B.S. Computer Science"/></div>
+                  <div className="field-group"><label className="field-label">School *</label><input className="field-input" value={edu.school} onChange={e=>upEdu(edu.id,'school',e.target.value)} placeholder="Stanford University"/></div>
+                  <div className="field-group"><label className="field-label">Dates</label><input className="field-input" value={edu.dates} onChange={e=>upEdu(edu.id,'dates',e.target.value)} placeholder="2016–2020"/></div>
+                  <div className="field-group"><label className="field-label">GPA (optional)</label><input className="field-input mono" value={edu.gpa} onChange={e=>upEdu(edu.id,'gpa',e.target.value)} placeholder="3.8/4.0"/></div>
+                </div>
+                <div style={{ display:'flex', justifyContent:'flex-end', marginTop:8 }}><Btn size="sm" variant="ghost" onClick={()=>removeEdu(edu.id)}>{Trash2 && <Trash2 size={12}/>} Remove</Btn></div>
+              </div>
+            ))}
+          </div>
+          {/* Skills */}
+          <div>
+            <div style={{ fontSize:15, fontWeight:700, color:'var(--text-1)', marginBottom:12 }}>Skills</div>
+            {data.skills.map(skill => (
+              <div key={skill.id} className="exp-card" style={{ marginBottom:10 }}>
+                <div className="skills-grid">
+                  <div className="field-group"><label className="field-label">Category</label><input className="field-input" value={skill.category} onChange={e=>upSkill(skill.id,'category',e.target.value)} placeholder="Technical Skills"/></div>
+                  <div className="field-group"><label className="field-label">Skills (comma-separated)</label><input className="field-input" value={(skill.items||[]).join(', ')} onChange={e=>upSkillItems(skill.id,e.target.value)} placeholder="React, TypeScript, Node.js, PostgreSQL…"/></div>
+                </div>
+              </div>
+            ))}
+            <Btn variant="secondary" onClick={() => save({ ...data, skills:[...data.skills, { id:uid(), category:'', items:[] }] })}>
+              {Plus && <Plus size={14}/>} Add Skill Category
+            </Btn>
+          </div>
+        </div>
+      );
+      case 4: return (
+        <div style={{ display:'flex', flexDirection:'column', gap:24 }}>
+          {/* Projects */}
+          <div>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+              <div style={{ fontSize:15, fontWeight:700, color:'var(--text-1)' }}>Projects</div>
+              <Btn variant="secondary" onClick={addProj}>{Plus && <Plus size={14}/>} Add Project</Btn>
+            </div>
+            {data.projects.map(proj => (
+              <div key={proj.id} className="exp-card" style={{ marginBottom:10 }}>
+                <div className="responsive-grid-2" style={{ gap:10, marginBottom:10 }}>
+                  <div className="field-group"><label className="field-label">Project Name</label><input className="field-input" value={proj.name} onChange={e=>upProj(proj.id,'name',e.target.value)} placeholder="CareerDeck"/></div>
+                  <div className="field-group"><label className="field-label">URL</label><input className="field-input" value={proj.url} onChange={e=>upProj(proj.id,'url',e.target.value)} placeholder="https://github.com/…"/></div>
+                  <div className="field-group" style={{ gridColumn:'1/-1' }}><label className="field-label">Description</label><textarea className="field-input" style={{ minHeight:60 }} value={proj.description} onChange={e=>upProj(proj.id,'description',e.target.value)} placeholder="Brief description of what you built and the impact…"/></div>
+                  <div className="field-group" style={{ gridColumn:'1/-1' }}><label className="field-label">Technologies</label><input className="field-input" value={proj.tech} onChange={e=>upProj(proj.id,'tech',e.target.value)} placeholder="React, Node.js, PostgreSQL"/></div>
+                </div>
+                <div style={{ display:'flex', justifyContent:'flex-end' }}><Btn size="sm" variant="ghost" onClick={()=>removeProj(proj.id)}>{Trash2 && <Trash2 size={12}/>} Remove</Btn></div>
+              </div>
+            ))}
+          </div>
+
+          {/* ATS Scanner */}
+          <div className="dash-section">
+            <div style={{ fontSize:14, fontWeight:700, color:'var(--text-1)', marginBottom:8 }}>
+              {Target && <Target size={14} style={{ display:'inline', marginRight:6, color:'var(--violet)' }}/>}ATS Optimization Score
+            </div>
+            <div style={{ fontSize:12, color:'var(--text-3)', marginBottom:12, lineHeight:1.6 }}>
+              AI analyzes your resume against common ATS systems and identifies issues that could disqualify you.
+            </div>
+            {atsResult ? (
+              <div>
+                <div style={{ display:'flex', alignItems:'center', gap:20, marginBottom:16, padding:'16px', background:'var(--bg)', borderRadius:10 }}>
+                  <div style={{ textAlign:'center' }}>
+                    <div className="mono score-reveal" style={{ fontSize:40, fontWeight:800, color:getScoreColor(atsResult.score), lineHeight:1 }}>{atsResult.score}</div>
+                    <div style={{ fontSize:11, color:'var(--text-3)', fontWeight:600, textTransform:'uppercase' }}>ATS Score</div>
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ height:8, background:'var(--border)', borderRadius:4, overflow:'hidden', marginBottom:6 }}>
+                      <div style={{ width:`${atsResult.score}%`, height:'100%', background:getScoreColor(atsResult.score), borderRadius:4, transition:'width 1s ease-out' }}/>
+                    </div>
+                    <div style={{ fontSize:11, color:'var(--text-3)' }}>
+                      {atsResult.score >= 80 ? '🟢 Excellent — you\'re likely to pass most ATS filters' :
+                       atsResult.score >= 60 ? '🟡 Good — a few improvements can boost your chances' :
+                       '🔴 Needs work — follow the suggestions below'}
+                    </div>
+                  </div>
+                </div>
+                {atsResult.issues?.length > 0 && <div style={{ marginBottom:12 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:'#F87171', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:6 }}>Issues to Fix</div>
+                  {atsResult.issues.map((issue,i) => <div key={i} className="ats-feedback-item"><span style={{ color:'#F87171', flexShrink:0 }}>✗</span>{issue}</div>)}
+                </div>}
+                {atsResult.strengths?.length > 0 && <div style={{ marginBottom:12 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:'var(--success)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:6 }}>Strengths</div>
+                  {atsResult.strengths.map((s,i) => <div key={i} className="ats-feedback-item"><span style={{ color:'var(--success)', flexShrink:0 }}>✓</span>{s}</div>)}
+                </div>}
+                {atsResult.keywords_missing?.length > 0 && <div>
+                  <div style={{ fontSize:11, fontWeight:700, color:'var(--warning)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:6 }}>Missing Keywords</div>
+                  <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>{atsResult.keywords_missing.map(k => <span key={k} className="tag-chip" style={{ background:'rgba(251,191,36,0.15)', color:'var(--warning)', border:'1px solid rgba(251,191,36,0.3)' }}>{k}</span>)}</div>
+                </div>}
+              </div>
+            ) : null}
+            <div style={{ display:'flex', gap:10, marginTop:12 }}>
+              <Btn variant="primary" style={{ background:'var(--violet)', color:'white' }} onClick={runATS} disabled={generating==='ats'}>
+                {generating==='ats' ? <Spinner size={14}/> : (Target && <Target size={14}/>)}
+                {atsResult ? 'Re-analyze ATS Score' : 'Analyze ATS Score'}
+              </Btn>
+            </div>
+          </div>
+
+          {/* Export */}
+          <div className="dash-section">
+            <div style={{ fontSize:14, fontWeight:700, color:'var(--text-1)', marginBottom:8 }}>
+              {Download && <Download size={14} style={{ display:'inline', marginRight:6, color:'var(--success)' }}/>}Export Resume
+            </div>
+            <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
+              <Btn variant="primary" onClick={exportPDF}>
+                {Download && <Download size={14}/>} Download PDF
+              </Btn>
+              <Btn variant="secondary" onClick={() => setShowPreview(v => !v)}>
+                {Eye && <Eye size={14}/>} {showPreview ? 'Hide' : 'Preview'} Resume
+              </Btn>
+            </div>
+          </div>
+
+          {/* Preview */}
+          {showPreview && (
+            <div className="resume-preview-wrap">
+              <div id="rb-preview-content" className="resume-preview">
+                <div style={{ borderBottom:'2px solid #1a1a1a', paddingBottom:12, marginBottom:12 }}>
+                  <h1 style={{ fontSize:22, fontWeight:700, margin:'0 0 4px', color:'#1a1a1a' }}>{P.name||'Your Name'}</h1>
+                  <div style={{ fontSize:13, color:'#555', marginBottom:4 }}>{P.targetRole}</div>
+                  <div style={{ fontSize:11, color:'#777', display:'flex', flexWrap:'wrap', gap:12 }}>
+                    {P.email && <span>✉ {P.email}</span>}
+                    {P.phone && <span>📞 {P.phone}</span>}
+                    {P.location && <span>📍 {P.location}</span>}
+                    {P.linkedin && <span>🔗 {P.linkedin}</span>}
+                    {P.website && <span>🌐 {P.website}</span>}
+                  </div>
+                </div>
+                {data.summary && <><h2 style={{ fontSize:13, textTransform:'uppercase', letterSpacing:'0.08em', color:'#333', borderBottom:'1px solid #ddd', paddingBottom:4, marginBottom:8 }}>Summary</h2><p style={{ fontSize:12, lineHeight:1.6, color:'#333', marginBottom:16 }}>{data.summary}</p></>}
+                {data.experience.length > 0 && <>
+                  <h2 style={{ fontSize:13, textTransform:'uppercase', letterSpacing:'0.08em', color:'#333', borderBottom:'1px solid #ddd', paddingBottom:4, marginBottom:8 }}>Experience</h2>
+                  {data.experience.map(exp => <div key={exp.id} style={{ marginBottom:12 }}>
+                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline' }}>
+                      <strong style={{ fontSize:13, color:'#1a1a1a' }}>{exp.role}</strong>
+                      <span style={{ fontSize:11, color:'#777' }}>{exp.dates}</span>
+                    </div>
+                    <div style={{ fontSize:12, color:'#555', marginBottom:4 }}>{exp.company}{exp.location ? ` · ${exp.location}` : ''}</div>
+                    <ul style={{ margin:'4px 0', paddingLeft:16 }}>{(exp.bullets||[]).filter(Boolean).map((b,i) => <li key={i} style={{ fontSize:12, color:'#333', marginBottom:2, lineHeight:1.5 }}>{b}</li>)}</ul>
+                  </div>)}
+                </>}
+                {data.education.length > 0 && <>
+                  <h2 style={{ fontSize:13, textTransform:'uppercase', letterSpacing:'0.08em', color:'#333', borderBottom:'1px solid #ddd', paddingBottom:4, marginBottom:8 }}>Education</h2>
+                  {data.education.map(edu => <div key={edu.id} style={{ marginBottom:8 }}>
+                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline' }}>
+                      <strong style={{ fontSize:13, color:'#1a1a1a' }}>{edu.degree}</strong>
+                      <span style={{ fontSize:11, color:'#777' }}>{edu.dates}</span>
+                    </div>
+                    <div style={{ fontSize:12, color:'#555' }}>{edu.school}{edu.gpa ? ` · GPA: ${edu.gpa}` : ''}</div>
+                  </div>)}
+                </>}
+                {data.skills.length > 0 && data.skills.some(s=>(s.items||[]).length>0) && <>
+                  <h2 style={{ fontSize:13, textTransform:'uppercase', letterSpacing:'0.08em', color:'#333', borderBottom:'1px solid #ddd', paddingBottom:4, marginBottom:8 }}>Skills</h2>
+                  {data.skills.filter(s=>(s.items||[]).length>0).map(s => <div key={s.id} style={{ marginBottom:4, fontSize:12, color:'#333' }}><strong>{s.category}:</strong> {(s.items||[]).join(', ')}</div>)}
+                </>}
+                {data.projects.length > 0 && <>
+                  <h2 style={{ fontSize:13, textTransform:'uppercase', letterSpacing:'0.08em', color:'#333', borderBottom:'1px solid #ddd', paddingBottom:4, marginBottom:8 }}>Projects</h2>
+                  {data.projects.map(proj => <div key={proj.id} style={{ marginBottom:8 }}>
+                    <div style={{ display:'flex', gap:8, alignItems:'baseline' }}>
+                      <strong style={{ fontSize:13, color:'#1a1a1a' }}>{proj.name}</strong>
+                      {proj.url && <a href={proj.url} style={{ fontSize:11, color:'#4F8EF7' }}>{proj.url}</a>}
+                    </div>
+                    {proj.tech && <div style={{ fontSize:11, color:'#777', marginBottom:2 }}>{proj.tech}</div>}
+                    <p style={{ fontSize:12, color:'#333', margin:'2px 0', lineHeight:1.5 }}>{proj.description}</p>
+                  </div>)}
+                </>}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+      default: return null;
+    }
+  };
+
+  return (
+    <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden' }}>
+      {/* Header */}
+      <div style={{ padding:'16px 24px', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', gap:12, flexWrap:'wrap', flexShrink:0 }}>
+        <div style={{ flex:1 }}>
+          <h1 style={{ fontSize:20, fontWeight:800, color:'var(--text-1)', letterSpacing:'-0.02em', marginBottom:2 }}>
+            {FileText && <FileText size={18} style={{ display:'inline', marginRight:8, color:'var(--accent)' }}/>}AI Resume Builder
+          </h1>
+          <div style={{ fontSize:12, color:'var(--text-3)' }}>Create an ATS-optimized, tailored resume in 5 steps — your data auto-saves locally</div>
+        </div>
+        {atsResult && (
+          <div style={{ display:'flex', alignItems:'center', gap:8, background:'var(--bg)', border:'1px solid var(--border)', borderRadius:10, padding:'8px 14px' }}>
+            <div style={{ fontSize:11, color:'var(--text-3)' }}>ATS Score</div>
+            <div className="mono" style={{ fontSize:22, fontWeight:800, color:getScoreColor(atsResult.score) }}>{atsResult.score}/100</div>
+          </div>
+        )}
+      </div>
+
+      {/* Step Bar */}
+      <div style={{ borderBottom:'1px solid var(--border)', flexShrink:0 }}>
+        <div style={{ display:'flex' }}>
+          {STEPS.map((s, i) => (
+            <button key={s} className={`rb-step-btn${i===step?' active':i<step?' done':''}`} onClick={()=>setStep(i)}>
+              <span style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
+                {i < step ? (CheckCircle && <CheckCircle size={12}/>) : <span style={{ width:16, height:16, borderRadius:'50%', border:'1.5px solid currentColor', display:'inline-flex', alignItems:'center', justifyContent:'center', fontSize:9, lineHeight:1 }}>{i+1}</span>}
+                <span className="hidden-mobile" style={{ fontSize:11 }}>{s}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="rb-content">
+        {renderStep()}
+      </div>
+
+      {/* Navigation */}
+      <div style={{ padding:'12px 24px', borderTop:'1px solid var(--border)', display:'flex', justifyContent:'space-between', flexShrink:0 }}>
+        <Btn variant="secondary" onClick={()=>setStep(s=>Math.max(0,s-1))} disabled={step===0}>
+          {ChevronLeft && <ChevronLeft size={15}/>} Previous
+        </Btn>
+        {step < STEPS.length-1 ? (
+          <Btn variant="primary" onClick={()=>setStep(s=>Math.min(STEPS.length-1,s+1))}>
+            Next {ChevronRight && <ChevronRight size={15}/>}
+          </Btn>
+        ) : (
+          <Btn variant="primary" onClick={exportPDF}>
+            {Download && <Download size={14}/>} Export Resume
+          </Btn>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// MOCK INTERVIEW VIEW
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const INTERVIEW_TYPES = [
+  { id:'behavioral', label:'Behavioral',     emoji:'🗣️',  desc:'STAR-format questions about past situations' },
+  { id:'technical',  label:'Technical',      emoji:'💻',  desc:'Coding concepts, architecture, problem solving' },
+  { id:'system',     label:'System Design',  emoji:'🏗️',  desc:'Design scalable systems at the whiteboard' },
+  { id:'hr',         label:'HR / Culture',   emoji:'🤝',  desc:'Company fit, compensation, career goals' },
+  { id:'case',       label:'Case Study',     emoji:'📊',  desc:'Business problem analysis and strategy' },
+];
+const INTERVIEW_LEVELS = ['Junior','Mid-level','Senior','Staff / Principal'];
+const INTERVIEW_DURATIONS = [
+  { label:'Quick (3 questions)',   count:3  },
+  { label:'Standard (6 questions)',count:6  },
+  { label:'Full (10 questions)',   count:10 },
+];
+
+function MockInterviewView() {
+  const { state, addToast } = useApp();
+  const { user } = state;
+  const [phase, setPhase]   = useState('setup');   // setup | session | results
+  const [config, setConfig] = useState({ type:'behavioral', level:'Mid-level', duration:INTERVIEW_DURATIONS[1] });
+  const [questions, setQuestions] = useState([]);
+  const [currentQ, setCurrentQ]   = useState(0);
+  const [answers, setAnswers]     = useState([]);
+  const [curAnswer, setCurAnswer] = useState('');
+  const [timeLeft, setTimeLeft]   = useState(0);
+  const [timerRunning, setTimerRunning] = useState(false);
+  const [generating, setGenerating]    = useState(false);
+  const [feedback, setFeedback]        = useState(null);
+  const [history, setHistory]          = useState(() => ls_get(LS.INTERVIEW_HIST, []));
+  const timerRef = useRef(null);
+
+  const SECS_PER_Q = 180; // 3 min per question
+
+  useEffect(() => {
+    if (timerRunning && timeLeft > 0) {
+      timerRef.current = setTimeout(() => setTimeLeft(t => t - 1), 1000);
+    } else if (timerRunning && timeLeft <= 0) {
+      moveNext();
+    }
+    return () => clearTimeout(timerRef.current);
+  }, [timerRunning, timeLeft]);
+
+  const startSession = async () => {
+    if (!user.apiKey) { addToast('Add API key in Settings to generate questions','warning'); return; }
+    setGenerating(true);
+    try {
+      const sys = 'You are an expert interviewer. Generate realistic interview questions. Return ONLY a JSON array of strings with exactly the specified number of questions.';
+      const msg = `Generate ${config.duration.count} ${config.type} interview questions for a ${config.level} role.
+Focus: ${INTERVIEW_TYPES.find(t=>t.id===config.type)?.desc}
+Make them realistic, challenging, and varied. No numbering, just the question text.`;
+      let full = '';
+      await callLLM(sys, msg, t => { full = t; }, { provider:user.llmProvider, model:user.llmModel, apiKey:user.apiKey });
+      const qs = parseAIJSON(full);
+      setQuestions(qs);
+      setAnswers(Array(qs.length).fill(''));
+      setCurrentQ(0);
+      setCurAnswer('');
+      setTimeLeft(SECS_PER_Q);
+      setTimerRunning(true);
+      setPhase('session');
+    } catch(e) {
+      addToast('Failed to generate questions. Check your API key.','error');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const moveNext = () => {
+    clearTimeout(timerRef.current);
+    setTimerRunning(false);
+    const updated = [...answers];
+    updated[currentQ] = curAnswer;
+    setAnswers(updated);
+    if (currentQ < questions.length - 1) {
+      setCurrentQ(q => q + 1);
+      setCurAnswer(answers[currentQ + 1] || '');
+      setTimeLeft(SECS_PER_Q);
+      setTimerRunning(true);
+    } else {
+      finishSession(updated);
+    }
+  };
+
+  const finishSession = async (finalAnswers) => {
+    clearTimeout(timerRef.current);
+    setTimerRunning(false);
+    setPhase('scoring');
+    setGenerating(true);
+    try {
+      const qa = questions.map((q,i) => `Q: ${q}\nA: ${finalAnswers[i]||'(no answer)'}`).join('\n\n');
+      const sys = 'You are an expert interview coach. Evaluate the candidate responses and return ONLY valid JSON matching this exact schema: {"overall_score":number,"summary":"2-sentence summary","strengths":["str1","str2"],"improvements":["imp1","imp2"],"question_scores":[{"question":"...","score":number,"feedback":"..."}]}';
+      let full = '';
+      await callLLM(sys, `Interview type: ${config.type} (${config.level})\n\n${qa}`, t => { full = t; }, { provider:user.llmProvider, model:user.llmModel, apiKey:user.apiKey });
+      const result = parseAIJSON(full);
+      setFeedback(result);
+      const newSession = { id:uid(), date:now(), type:config.type, level:config.level, score:result.overall_score, questions:questions.length };
+      const newHistory = [newSession, ...history].slice(0,10);
+      setHistory(newHistory);
+      ls_set(LS.INTERVIEW_HIST, newHistory);
+      addToast(`Interview complete! Score: ${result.overall_score}/100`, result.overall_score >= 70 ? 'success' : 'ai');
+    } catch(e) {
+      addToast('Scoring failed. Showing raw answers.','error');
+      setFeedback({ overall_score:0, summary:'Scoring failed.', strengths:[], improvements:[], question_scores:[] });
+    } finally {
+      setGenerating(false);
+      setPhase('results');
+    }
+  };
+
+  const reset = () => {
+    setPhase('setup'); setQuestions([]); setAnswers([]); setCurAnswer(''); setCurrentQ(0);
+    setFeedback(null); setTimerRunning(false); clearTimeout(timerRef.current);
+  };
+
+  const fmt = (s) => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+  const timerClass = timeLeft <= 30 ? 'interview-timer danger' : timeLeft <= 60 ? 'interview-timer warning' : 'interview-timer';
+  const scoreColor = feedback ? getScoreColor(feedback.overall_score) : 'var(--text-1)';
+
+  if (phase === 'scoring') {
+    return (
+      <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:20 }}>
+        <Spinner size={40}/>
+        <div style={{ fontSize:16, fontWeight:600, color:'var(--text-1)' }}>AI is scoring your interview…</div>
+        <div style={{ fontSize:13, color:'var(--text-3)' }}>This takes about 15–30 seconds</div>
+      </div>
+    );
+  }
+
+  if (phase === 'results' && feedback) {
+    return (
+      <div className="view-container">
+        <div style={{ maxWidth:720, margin:'0 auto', display:'flex', flexDirection:'column', gap:20 }}>
+          {/* Score Header */}
+          <div className="interview-score-hero">
+            <div style={{ textAlign:'center' }}>
+              <div className="mono score-reveal" style={{ fontSize:60, fontWeight:900, color:'white', lineHeight:1, textShadow:'0 2px 12px rgba(0,0,0,0.3)' }}>{feedback.overall_score}</div>
+              <div style={{ fontSize:12, color:'rgba(255,255,255,0.7)', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em' }}>/ 100</div>
+            </div>
+            <div>
+              <div style={{ fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.6)', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:6 }}>
+                {INTERVIEW_TYPES.find(t=>t.id===config.type)?.emoji} {config.type} · {config.level}
+              </div>
+              <div style={{ fontSize:18, fontWeight:800, color:'white', marginBottom:8 }}>
+                {feedback.overall_score >= 85 ? '🏆 Excellent Performance!' : feedback.overall_score >= 70 ? '✅ Good Job!' : feedback.overall_score >= 50 ? '📈 Keep Practicing!' : '💪 Room to Grow'}
+              </div>
+              <div style={{ fontSize:13, color:'rgba(255,255,255,0.8)', lineHeight:1.6 }}>{feedback.summary}</div>
+            </div>
+          </div>
+
+          <div className="responsive-grid-2" style={{ gap:16 }}>
+            {/* Strengths */}
+            <div className="dash-section">
+              <div style={{ fontSize:13, fontWeight:700, color:'var(--success)', marginBottom:12, display:'flex', gap:6, alignItems:'center' }}>
+                {ThumbsUp && <ThumbsUp size={14}/>} Strengths
+              </div>
+              {(feedback.strengths||[]).map((s,i) => (
+                <div key={i} style={{ display:'flex', gap:8, padding:'7px 0', borderBottom:'1px solid var(--border)', fontSize:12, color:'var(--text-2)', lineHeight:1.5 }}>
+                  <span style={{ color:'var(--success)', flexShrink:0 }}>✓</span>{s}
+                </div>
+              ))}
+            </div>
+            {/* Improvements */}
+            <div className="dash-section">
+              <div style={{ fontSize:13, fontWeight:700, color:'var(--warning)', marginBottom:12, display:'flex', gap:6, alignItems:'center' }}>
+                {Target && <Target size={14}/>} Areas to Improve
+              </div>
+              {(feedback.improvements||[]).map((imp,i) => (
+                <div key={i} style={{ display:'flex', gap:8, padding:'7px 0', borderBottom:'1px solid var(--border)', fontSize:12, color:'var(--text-2)', lineHeight:1.5 }}>
+                  <span style={{ color:'var(--warning)', flexShrink:0 }}>→</span>{imp}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Per-question breakdown */}
+          <div className="dash-section">
+            <div style={{ fontSize:13, fontWeight:700, color:'var(--text-1)', marginBottom:14 }}>Question-by-Question Breakdown</div>
+            {(feedback.question_scores||[]).map((qs,i) => (
+              <div key={i} className="score-breakdown-row">
+                <div style={{ width:36, height:36, borderRadius:'50%', background:`${getScoreColor(qs.score)}20`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <span className="mono" style={{ fontSize:13, fontWeight:800, color:getScoreColor(qs.score) }}>{qs.score}</span>
+                </div>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:12, fontWeight:600, color:'var(--text-1)', marginBottom:2, lineHeight:1.4 }}>{qs.question}</div>
+                  <div style={{ fontSize:11, color:'var(--text-3)', lineHeight:1.5 }}>{qs.feedback}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display:'flex', gap:12 }}>
+            <Btn variant="primary" onClick={reset} style={{ flex:1 }}>
+              {PlayCircle && <PlayCircle size={14}/>} Practice Again
+            </Btn>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === 'session') {
+    const progress = ((currentQ) / questions.length) * 100;
+    return (
+      <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden' }}>
+        {/* Progress bar */}
+        <div style={{ height:3, background:'var(--border)', flexShrink:0 }}>
+          <div style={{ height:'100%', background:'var(--accent)', width:`${progress}%`, transition:'width 0.3s ease' }}/>
+        </div>
+        <div className="interview-session-container">
+          <div style={{ width:'100%', maxWidth:680, display:'flex', flexDirection:'column', gap:20 }}>
+            {/* Top bar */}
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+              <div style={{ fontSize:13, fontWeight:600, color:'var(--text-3)' }}>Question {currentQ+1} of {questions.length}</div>
+              <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <div className={timerClass}>{fmt(timeLeft)}</div>
+                <button className="btn btn-ghost btn-icon" title={timerRunning?'Pause timer':'Resume timer'} onClick={()=>setTimerRunning(v=>!v)}>
+                  {timerRunning ? (PauseCircle && <PauseCircle size={18}/>) : (PlayCircle && <PlayCircle size={18}/>)}
+                </button>
+              </div>
+            </div>
+
+            {/* Question card */}
+            <div className="interview-question-card">
+              <div style={{ fontSize:11, fontWeight:700, color:'var(--accent)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:10 }}>
+                {INTERVIEW_TYPES.find(t=>t.id===config.type)?.emoji} {config.type} Question
+              </div>
+              <div style={{ fontSize:17, fontWeight:700, color:'var(--text-1)', lineHeight:1.55 }}>
+                {questions[currentQ]}
+              </div>
+            </div>
+
+            {/* STAR hint */}
+            <details style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:10, padding:'10px 14px' }}>
+              <summary style={{ fontSize:12, fontWeight:600, color:'var(--text-3)', cursor:'pointer', userSelect:'none' }}>
+                💡 STAR Framework Reminder
+              </summary>
+              <div style={{ marginTop:10, display:'flex', flexDirection:'column', gap:6 }}>
+                {[['S — Situation','Set the scene. What was the context?'],['T — Task','What was your responsibility or goal?'],['A — Action','What specific steps did YOU take?'],['R — Result','What was the measurable outcome?']].map(([l,d])=>(
+                  <div key={l} style={{ display:'flex', gap:10, fontSize:12, color:'var(--text-2)' }}><strong style={{ color:'var(--accent)', flexShrink:0, width:100 }}>{l}</strong>{d}</div>
+                ))}
+              </div>
+            </details>
+
+            {/* Answer area */}
+            <div className="field-group">
+              <label className="field-label" style={{ display:'flex', justifyContent:'space-between' }}>
+                <span>Your Answer</span>
+                <span style={{ fontSize:11, color:'var(--text-3)', fontWeight:400 }}>{curAnswer.length} characters</span>
+              </label>
+              <textarea className="field-input" style={{ minHeight:160, lineHeight:1.7, fontSize:13 }}
+                value={curAnswer} onChange={e=>setCurAnswer(e.target.value)}
+                placeholder="Structure your answer using the STAR framework. Aim for 2–4 minutes of speaking time (200–400 words)…"/>
+            </div>
+
+            <div style={{ display:'flex', gap:10 }}>
+              <Btn variant="primary" onClick={moveNext} style={{ flex:1 }}>
+                {currentQ < questions.length - 1 ? `Next Question →` : 'Finish & Get Score'}
+              </Btn>
+              <Btn variant="ghost" onClick={reset}>Quit</Btn>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Setup phase
+  return (
+    <div className="view-container">
+      <div style={{ maxWidth:700, margin:'0 auto', display:'flex', flexDirection:'column', gap:28 }}>
+        <div>
+          <h1 style={{ fontSize:22, fontWeight:800, color:'var(--text-1)', letterSpacing:'-0.02em', marginBottom:6 }}>
+            {Mic && <Mic size={20} style={{ display:'inline', marginRight:10, color:'var(--pink)' }}/>}Mock Interview Practice
+          </h1>
+          <p style={{ fontSize:13, color:'var(--text-3)', margin:0, lineHeight:1.6 }}>Practice real-time interview questions, get AI scoring, and receive actionable feedback to land your dream job.</p>
+        </div>
+
+        {/* Interview Type */}
+        <div>
+          <div style={{ fontSize:13, fontWeight:700, color:'var(--text-1)', marginBottom:12 }}>Choose Interview Type</div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(130px, 1fr))', gap:10 }}>
+            {INTERVIEW_TYPES.map(t => (
+              <div key={t.id} className={`interview-type-card${config.type===t.id?' selected':''}`} onClick={()=>setConfig(c=>({...c,type:t.id}))}>
+                <span style={{ fontSize:24 }}>{t.emoji}</span>
+                <div style={{ fontSize:12, fontWeight:700, color:'var(--text-1)' }}>{t.label}</div>
+                <div style={{ fontSize:10, color:'var(--text-3)', lineHeight:1.4 }}>{t.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Level + Duration */}
+        <div className="responsive-grid-2" style={{ gap:20 }}>
+          <div>
+            <div style={{ fontSize:13, fontWeight:700, color:'var(--text-1)', marginBottom:10 }}>Experience Level</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+              {INTERVIEW_LEVELS.map(l => (
+                <label key={l} style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', padding:'10px 12px', background:'var(--surface)', border:`1px solid ${config.level===l?'var(--accent)':'var(--border)'}`, borderRadius:9, transition:'all 0.15s' }}>
+                  <input type="radio" name="level" checked={config.level===l} onChange={()=>setConfig(c=>({...c,level:l}))} style={{ accentColor:'var(--accent)' }}/>
+                  <span style={{ fontSize:13, fontWeight:600, color:config.level===l?'var(--accent)':'var(--text-1)' }}>{l}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize:13, fontWeight:700, color:'var(--text-1)', marginBottom:10 }}>Session Length</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+              {INTERVIEW_DURATIONS.map(d => (
+                <label key={d.label} style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', padding:'10px 12px', background:'var(--surface)', border:`1px solid ${config.duration.count===d.count?'var(--accent)':'var(--border)'}`, borderRadius:9, transition:'all 0.15s' }}>
+                  <input type="radio" name="duration" checked={config.duration.count===d.count} onChange={()=>setConfig(c=>({...c,duration:d}))} style={{ accentColor:'var(--accent)' }}/>
+                  <span style={{ fontSize:13, fontWeight:600, color:config.duration.count===d.count?'var(--accent)':'var(--text-1)' }}>{d.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Session history */}
+        {history.length > 0 && (
+          <div className="dash-section">
+            <div style={{ fontSize:13, fontWeight:700, color:'var(--text-1)', marginBottom:12 }}>Past Sessions</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:0 }}>
+              {history.slice(0,5).map(s => (
+                <div key={s.id} style={{ display:'flex', alignItems:'center', gap:12, padding:'8px 0', borderBottom:'1px solid var(--border)' }}>
+                  <span style={{ fontSize:16 }}>{INTERVIEW_TYPES.find(t=>t.id===s.type)?.emoji||'🎤'}</span>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:12, fontWeight:600, color:'var(--text-1)' }}>{INTERVIEW_TYPES.find(t=>t.id===s.type)?.label} · {s.level}</div>
+                    <div style={{ fontSize:11, color:'var(--text-3)' }}>{s.questions} questions · {formatRelative(s.date)}</div>
+                  </div>
+                  <div className="mono" style={{ fontSize:16, fontWeight:800, color:getScoreColor(s.score) }}>{s.score}/100</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <Btn variant="primary" style={{ padding:'14px 24px', fontSize:15, width:'100%', justifyContent:'center' }}
+          onClick={startSession} disabled={generating}>
+          {generating ? <Spinner size={16}/> : (PlayCircle && <PlayCircle size={18}/>)}
+          {generating ? 'Generating questions…' : `Start Interview — ${config.duration.count} Questions`}
+        </Btn>
       </div>
     </div>
   );
@@ -2683,7 +4046,7 @@ Schema: {"companyName":string,"roleName":string,"location":string,"remote":boole
 
           {tab==='manual' && (
             <>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+              <div className="responsive-grid-2">
                 <div className="field-group">
                   <label className="field-label" htmlFor="co-name">Company Name *</label>
                   <input id="co-name" className="field-input" value={form.companyName} onChange={e=>f('companyName',e.target.value)} placeholder="Acme Corp"/>
@@ -2693,7 +4056,7 @@ Schema: {"companyName":string,"roleName":string,"location":string,"remote":boole
                   <input id="role" className="field-input" value={form.roleName} onChange={e=>f('roleName',e.target.value)} placeholder="Senior Engineer"/>
                 </div>
               </div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+              <div className="responsive-grid-2">
                 <div className="field-group">
                   <label className="field-label" htmlFor="stage-sel">Stage</label>
                   <select id="stage-sel" className="field-input" value={form.stage} onChange={e=>f('stage',e.target.value)}>
@@ -2707,7 +4070,7 @@ Schema: {"companyName":string,"roleName":string,"location":string,"remote":boole
                   </select>
                 </div>
               </div>
-              <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr', gap:12 }}>
+              <div className="responsive-grid-2">
                 <div className="field-group">
                   <label className="field-label" htmlFor="loc">Location</label>
                   <input id="loc" className="field-input" value={form.location} onChange={e=>f('location',e.target.value)} placeholder="San Francisco, CA"/>
@@ -2720,7 +4083,7 @@ Schema: {"companyName":string,"roleName":string,"location":string,"remote":boole
                   </label>
                 </div>
               </div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+              <div className="responsive-grid-2">
                 <div className="field-group">
                   <label className="field-label" htmlFor="sal-min">Salary Min ($)</label>
                   <input id="sal-min" className="field-input mono" type="number" value={form.salaryMin} onChange={e=>f('salaryMin',e.target.value)} placeholder="120000"/>
@@ -4506,7 +5869,11 @@ function CommandPalette() {
   const close = () => dispatch({ type:A.CLOSE_PALETTE });
 
   const quickActions = [
+    { label:'Dashboard',          icon:Home,        action:()=>{ close(); dispatch({ type:A.SET_VIEW, payload:'dashboard' }); }},
     { label:'Add New Job',        icon:Plus,        action:()=>{ close(); dispatch({ type:A.SET_MODAL, payload:{ addJob:true } }); }},
+    { label:'Find Jobs',          icon:Search,      action:()=>{ close(); dispatch({ type:A.SET_VIEW, payload:'jobsearch' }); }},
+    { label:'Resume Builder',     icon:FileText,    action:()=>{ close(); dispatch({ type:A.SET_VIEW, payload:'resumebuilder' }); }},
+    { label:'Mock Interview',     icon:Mic,         action:()=>{ close(); dispatch({ type:A.SET_VIEW, payload:'mockinterview' }); }},
     { label:'Kanban Board',       icon:LayoutGrid,  action:()=>{ close(); dispatch({ type:A.SET_VIEW, payload:'kanban' }); }},
     { label:'List View',          icon:List,        action:()=>{ close(); dispatch({ type:A.SET_VIEW, payload:'list' }); }},
     { label:'Analytics',          icon:BarChart2,   action:()=>{ close(); dispatch({ type:A.SET_VIEW, payload:'analytics' }); }},
@@ -4661,10 +6028,14 @@ function App() {
       <div className="main-area">
         <TopBar/>
         <div style={{ flex:1, overflowY: activeView==='kanban'?'hidden':'auto', display:'flex', flexDirection:'column' }}>
-          {activeView==='kanban'    && <KanbanView/>}
-          {activeView==='list'      && <ListView/>}
-          {activeView==='analytics' && <AnalyticsView/>}
-          {activeView==='settings'  && <SettingsView/>}
+          {activeView==='dashboard'     && <DashboardView/>}
+          {activeView==='kanban'        && <KanbanView/>}
+          {activeView==='list'          && <ListView/>}
+          {activeView==='jobsearch'     && <JobSearchView/>}
+          {activeView==='resumebuilder' && <ResumeBuilderView/>}
+          {activeView==='mockinterview' && <MockInterviewView/>}
+          {activeView==='analytics'     && <AnalyticsView/>}
+          {activeView==='settings'      && <SettingsView/>}
         </div>
       </div>
 

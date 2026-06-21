@@ -4,6 +4,8 @@
 
 Everything is packed into a single `index.html` file that runs entirely in your browser. There is **no installation, no server, and no backend database setup** required.
 
+👉 **Try it Live**: [https://career-deck.vercel.app/](https://career-deck.vercel.app/)
+
 ---
 
 ## 📺 Video Walkthrough
