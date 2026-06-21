@@ -710,10 +710,23 @@ function parseAIJSON(text) {
   // Step 1: strip markdown code fences
   let cleaned = text.replace(/```(?:json)?\s*/gi, '').replace(/```\s*$/g, '').trim();
 
-  // Step 2: find outermost JSON object boundaries
-  const start = cleaned.indexOf('{');
-  const end   = cleaned.lastIndexOf('}');
-  if (start === -1 || end === -1) throw new Error('No JSON object found in AI response');
+  // Step 2: find outermost JSON boundaries (either object {} or array [])
+  const firstObject = cleaned.indexOf('{');
+  const firstArray  = cleaned.indexOf('[');
+  let start = -1;
+  let end = -1;
+  let isArray = false;
+
+  if (firstObject !== -1 && (firstArray === -1 || firstObject < firstArray)) {
+    start = firstObject;
+    end = cleaned.lastIndexOf('}');
+  } else if (firstArray !== -1) {
+    start = firstArray;
+    end = cleaned.lastIndexOf(']');
+    isArray = true;
+  }
+
+  if (start === -1 || end === -1) throw new Error('No JSON found in AI response');
   let candidate = cleaned.slice(start, end + 1);
 
   // Step 3: try strict parse first
@@ -731,15 +744,14 @@ function parseAIJSON(text) {
 
   // Step 5: If still broken, attempt to truncate to last valid closing brace
   try { return JSON.parse(fixed); } catch (_) {
-    // Walk backwards to find the last valid complete JSON
-    let lastClose = fixed.lastIndexOf('}');
+    let lastClose = isArray ? fixed.lastIndexOf(']') : fixed.lastIndexOf('}');
     while (lastClose > 0) {
       try {
         const attempt = closeTruncatedJSON(fixed.slice(0, lastClose + 1));
         const parsed = JSON.parse(attempt);
         return parsed;
       } catch (_) {
-        lastClose = fixed.lastIndexOf('}', lastClose - 1);
+        lastClose = isArray ? fixed.lastIndexOf(']', lastClose - 1) : fixed.lastIndexOf('}', lastClose - 1);
       }
     }
     throw new Error('AI response could not be parsed as JSON. Please try again.');
@@ -1396,18 +1408,50 @@ async function callLLM(systemPrompt, userMessage, onStream, config) {
   let response;
   try {
     if (provider === 'gemini') {
-      response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-            systemInstruction: { parts: [{ text: systemPrompt }] },
-            generationConfig: { maxOutputTokens: 3000, temperature: 0.7 }
-          })
+      const bodyData = {
+        contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        generationConfig: { maxOutputTokens: 3000, temperature: 0.7 }
+      };
+      if (config.webSearch) {
+        bodyData.tools = [{ googleSearch: {} }];
+      }
+      try {
+        response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(bodyData)
+          }
+        );
+        if (!response.ok && config.webSearch) {
+          // Retry without tools if it failed
+          delete bodyData.tools;
+          response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(bodyData)
+            }
+          );
         }
-      );
+      } catch (err) {
+        if (config.webSearch) {
+          delete bodyData.tools;
+          response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(bodyData)
+            }
+          );
+        } else {
+          throw err;
+        }
+      }
     } else if (provider === 'openai') {
       response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -2169,6 +2213,27 @@ function DashboardView() {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // JOB SEARCH VIEW
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function formatSalary(min, max, targetCurrency) {
+  if (!min && !max) return '—';
+  if (targetCurrency === 'INR') {
+    const minINR = min ? (min < 1000000 ? min * 83 : min) : 0;
+    const maxINR = max ? (max < 1000000 ? max * 83 : max) : 0;
+    const fmt = (val) => {
+      if (val >= 10000000) return `₹${(val/10000000).toFixed(1)}Cr`;
+      return `₹${(val/100000).toFixed(0)}L`;
+    };
+    if (minINR && maxINR) return `${fmt(minINR)}–${fmt(maxINR)}`;
+    if (minINR) return `From ${fmt(minINR)}`;
+    return `Up to ${fmt(maxINR)}`;
+  }
+  const minUSD = min ? (min >= 1000000 ? min / 83 : min) : 0;
+  const maxUSD = max ? (max >= 1000000 ? max / 83 : max) : 0;
+  const fmt = (val) => `$${(val/1000).toFixed(0)}K`;
+  if (minUSD && maxUSD) return `${fmt(minUSD)}–${fmt(maxUSD)}`;
+  if (minUSD) return `From ${fmt(minUSD)}`;
+  return `Up to ${fmt(maxUSD)}`;
+}
+
 function JobSearchView() {
   const { state, dispatch, addToast } = useApp();
   const { user, applications } = state;
@@ -2177,21 +2242,127 @@ function JobSearchView() {
   const [remoteOnly, setRemoteOnly] = useState(false);
   const [salaryMin, setSalaryMin] = useState('');
   const [jobType,  setJobType]  = useState('All');
-  const [scoring,  setScoring]  = useState(null); // jobId being scored
-  const [scores,   setScores]   = useState({});   // { jobId: { score, reason } }
+  const [currency, setCurrency] = useState('USD');
+  const [searchMode, setSearchMode] = useState('mock');
+  const [liveJobs, setLiveJobs] = useState([]);
+  const [loadingLive, setLoadingLive] = useState(false);
+  const [scoring,  setScoring]  = useState(null);
+  const [scores,   setScores]   = useState({});
   const [expanded, setExpanded] = useState(null);
 
   const JOB_TYPES = ['All','Full-time','Contract','Part-time'];
 
   const filtered = useMemo(() => {
-    let list = [...MOCK_JOBS_DATA];
+    let list = searchMode === 'live' ? liveJobs : [...MOCK_JOBS_DATA];
     if (keyword)    list = list.filter(j => (j.roleName+j.companyName+j.tags.join(' ')+j.description).toLowerCase().includes(keyword.toLowerCase()));
     if (location)   list = list.filter(j => j.location.toLowerCase().includes(location.toLowerCase()) || (j.remote && 'remote'.includes(location.toLowerCase())));
     if (remoteOnly) list = list.filter(j => j.remote);
-    if (salaryMin)  list = list.filter(j => !j.salaryMin || j.salaryMin >= Number(salaryMin)*1000);
+    if (salaryMin) {
+      const threshold = Number(salaryMin) * (currency === 'INR' ? 100000 : 1000);
+      list = list.filter(j => {
+        let minSal = j.salaryMin || 0;
+        if (minSal === 0) return true;
+        if (j.currency === 'INR' && currency === 'USD') {
+          minSal = minSal / 83;
+        } else if (j.currency === 'USD' && currency === 'INR') {
+          minSal = minSal * 83;
+        }
+        return minSal >= threshold;
+      });
+    }
     if (jobType !== 'All') list = list.filter(j => j.type === jobType);
     return list;
-  }, [keyword, location, remoteOnly, salaryMin, jobType]);
+  }, [searchMode, liveJobs, keyword, location, remoteOnly, salaryMin, jobType, currency]);
+
+  const fetchLiveJobs = async () => {
+    if (!user.apiKey) {
+      addToast('Add an API key in Settings to search live jobs', 'warning');
+      return;
+    }
+    setLoadingLive(true);
+    try {
+      const baseResume = ls_get(LS.RESUME, '');
+      const builtResume = ls_get(LS.BUILT_RESUME, null);
+      const resumeText = baseResume || (builtResume ? `${builtResume.personalInfo?.name || ''}\n${builtResume.summary || ''}\nSkills: ${builtResume.skills?.map(s => s.items?.join(', ')).join(', ') || ''}` : '');
+      const resumeContext = resumeText ? `Candidate Profile Context (align search with this profile):\n${resumeText.slice(0, 1000)}` : 'No resume profile provided.';
+
+      const sys = `You are a real-time job search agent. Use your web-search grounding or real-time web knowledge to find exactly 5 to 7 ACTIVE, REAL job openings matching the search query.
+For each job, you MUST provide real, active URLs to apply directly on LinkedIn, Naukri.com, Indeed, Glassdoor, or the company careers page.
+Verify that the URLs are actual active links.
+
+Return ONLY a valid JSON array of job listings matching this schema, with no markdown formatting, no code block backticks (e.g. do not wrap with \`\`\`json):
+[
+  {
+    "id": "string (unique hash)",
+    "roleName": "string",
+    "companyName": "string",
+    "location": "string (e.g. Mumbai, India or Remote)",
+    "remote": boolean,
+    "type": "Full-time" | "Contract" | "Part-time",
+    "salaryMin": number (minimum base salary. Convert or search in target currency, e.g. for INR write 1200000. Write 0 if unknown),
+    "salaryMax": number (maximum base salary. Format in target currency. Write 0 if unknown),
+    "currency": "USD" | "INR",
+    "description": "string (brief summary of responsibilities, 2-3 sentences)",
+    "requirements": ["requirement 1", "requirement 2"],
+    "tags": ["tag1", "tag2"],
+    "applyUrl": "string (REAL application link)",
+    "posted": "string (e.g. 2 days ago)",
+    "hot": boolean
+  }
+]`;
+
+      const searchTerms = [];
+      if (keyword) searchTerms.push(`Role/Keyword: "${keyword}"`);
+      if (location) searchTerms.push(`Location: "${location}"`);
+      if (remoteOnly) searchTerms.push(`Remote only: "Yes"`);
+      if (salaryMin) {
+        const salVal = Number(salaryMin) * (currency === 'INR' ? 100000 : 1000);
+        searchTerms.push(`Min salary: ${salVal} ${currency}`);
+      }
+
+      const queryMsg = `Find live active job openings with these parameters:
+${searchTerms.join('\n')}
+Target Currency: ${currency}
+
+${resumeContext}
+
+Please return the JSON array of real jobs now.`;
+
+      let fullResponse = '';
+      await callLLM(sys, queryMsg, t => { fullResponse = t; }, { 
+        provider: user.llmProvider, 
+        model: user.llmModel, 
+        apiKey: user.apiKey,
+        webSearch: true 
+      });
+
+      const parsedJobs = parseAIJSON(fullResponse);
+      if (Array.isArray(parsedJobs) && parsedJobs.length > 0) {
+        const formatted = parsedJobs.map(j => ({
+          ...j,
+          id: j.id || uid(),
+          remote: !!j.remote,
+          requirements: Array.isArray(j.requirements) ? j.requirements : [],
+          tags: Array.isArray(j.tags) ? j.tags : [],
+          salaryMin: Number(j.salaryMin) || 0,
+          salaryMax: Number(j.salaryMax) || 0,
+          currency: j.currency || currency,
+          applyUrl: j.applyUrl || 'https://www.linkedin.com/jobs',
+          posted: j.posted || 'Recent'
+        }));
+        setLiveJobs(formatted);
+        addToast(`Found ${formatted.length} live jobs on the web!`, 'success');
+      } else {
+        throw new Error('Response is not a valid JSON array');
+      }
+    } catch (e) {
+      console.error(e);
+      addToast('Live search failed or returned invalid data. Showing offline mock jobs.', 'warning');
+      setSearchMode('mock');
+    } finally {
+      setLoadingLive(false);
+    }
+  };
 
   const scoreJob = async (job) => {
     if (!user.apiKey) { addToast('Add an API key in Settings to score jobs', 'warning'); return; }
@@ -2232,11 +2403,23 @@ function JobSearchView() {
   return (
     <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden' }}>
       {/* Header */}
-      <div style={{ padding:'18px 24px', borderBottom:'1px solid var(--border)', flexShrink:0 }}>
-        <h1 style={{ fontSize:20, fontWeight:800, color:'var(--text-1)', letterSpacing:'-0.02em', marginBottom:4 }}>
-          {Search && <Search size={18} style={{ display:'inline', marginRight:8, color:'var(--success)' }}/>}Find Jobs
-        </h1>
-        <p style={{ fontSize:12, color:'var(--text-3)', margin:0 }}>{filtered.length} of {MOCK_JOBS_DATA.length} openings · All remote-friendly tech positions · Direct apply links to company career pages</p>
+      <div style={{ padding:'18px 24px', borderBottom:'1px solid var(--border)', flexShrink:0, display:'flex', justifyContent:'space-between', alignItems:'center', gap:12, flexWrap:'wrap' }}>
+        <div>
+          <h1 style={{ fontSize:20, fontWeight:800, color:'var(--text-1)', letterSpacing:'-0.02em', marginBottom:4 }}>
+            {Search && <Search size={18} style={{ display:'inline', marginRight:8, color:'var(--success)' }}/>}Find Jobs
+          </h1>
+          <p style={{ fontSize:12, color:'var(--text-3)', margin:0 }}>
+            {searchMode === 'live' ? `Showing ${filtered.length} live AI web jobs` : `Showing ${filtered.length} of ${MOCK_JOBS_DATA.length} mock openings`} · Powered by real-time web search
+          </p>
+        </div>
+        <div style={{ display:'flex', background:'var(--surface-2)', borderRadius:10, padding:3, border:'1px solid var(--border)' }}>
+          <button className={`btn btn-sm ${searchMode==='mock'?'btn-primary':'btn-ghost'}`} style={{ borderRadius:8, fontSize:11, padding:'6px 12px' }} onClick={()=>setSearchMode('mock')}>
+            Mock Database
+          </button>
+          <button className={`btn btn-sm ${searchMode==='live'?'btn-primary':'btn-ghost'}`} style={{ borderRadius:8, fontSize:11, padding:'6px 12px' }} onClick={()=>setSearchMode('live')}>
+            {Sparkles && <Sparkles size={11} style={{ marginRight:4 }}/>} Live Web (AI)
+          </button>
+        </div>
       </div>
 
       {/* Filter Bar */}
@@ -2249,111 +2432,149 @@ function JobSearchView() {
           <div style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none' }}>{MapPin && <MapPin size={14}/>}</div>
           <input className="field-input" style={{ paddingLeft:34, fontSize:13 }} placeholder="Location…" value={location} onChange={e => setLocation(e.target.value)}/>
         </div>
-        <select className="field-input" style={{ width:130, fontSize:13 }} value={jobType} onChange={e => setJobType(e.target.value)}>
+        <select className="field-input" style={{ width:120, fontSize:13 }} value={jobType} onChange={e => setJobType(e.target.value)}>
           {JOB_TYPES.map(t => <option key={t}>{t}</option>)}
         </select>
-        <div style={{ position:'relative', flex:'none', width:130 }}>
-          <div style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none' }}>{DollarSign && <DollarSign size={13}/>}</div>
-          <input className="field-input mono" style={{ paddingLeft:28, fontSize:13 }} placeholder="Min salary (K)" type="number" value={salaryMin} onChange={e => setSalaryMin(e.target.value)}/>
+        
+        {/* Currency Switcher */}
+        <select className="field-input" style={{ width:85, fontSize:13 }} value={currency} onChange={e => setCurrency(e.target.value)}>
+          <option value="USD">USD ($)</option>
+          <option value="INR">INR (₹)</option>
+        </select>
+
+        {/* Salary Input */}
+        <div style={{ position:'relative', flex:'none', width:140 }}>
+          <div style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none', fontSize:12, fontWeight:700 }}>
+            {currency === 'INR' ? '₹' : '$'}
+          </div>
+          <input className="field-input mono" style={{ paddingLeft:22, fontSize:13 }} placeholder={currency === 'INR' ? "Min salary (Lakhs)" : "Min salary (K)"} type="number" value={salaryMin} onChange={e => setSalaryMin(e.target.value)}/>
         </div>
+        
         <label style={{ display:'flex', alignItems:'center', gap:7, cursor:'pointer', fontSize:13, color:'var(--text-2)', whiteSpace:'nowrap', flexShrink:0 }}>
           <input type="checkbox" checked={remoteOnly} onChange={e => setRemoteOnly(e.target.checked)}/> Remote only
         </label>
-        {(keyword||location||remoteOnly||salaryMin||jobType!=='All') && (
-          <button className="btn btn-ghost btn-sm" onClick={() => { setKeyword(''); setLocation(''); setRemoteOnly(false); setSalaryMin(''); setJobType('All'); }}>
-            {X && <X size={12}/>} Clear
-          </button>
+        
+        {searchMode === 'live' ? (
+          <Btn variant="primary" onClick={fetchLiveJobs} disabled={loadingLive} style={{ fontSize:13 }}>
+            {loadingLive ? <Spinner size={12}/> : (Search && <Search size={13}/>)}
+            {loadingLive ? 'Searching...' : 'Search Live Web'}
+          </Btn>
+        ) : (
+          (keyword||location||remoteOnly||salaryMin||jobType!=='All') && (
+            <button className="btn btn-ghost btn-sm" onClick={() => { setKeyword(''); setLocation(''); setRemoteOnly(false); setSalaryMin(''); setJobType('All'); }}>
+              {X && <X size={12}/>} Clear
+            </button>
+          )
         )}
       </div>
 
       {/* Job Cards */}
       <div style={{ flex:1, overflowY:'auto', padding:'20px 24px' }}>
-        {filtered.length === 0 ? (
-          <div style={{ textAlign:'center', padding:'60px 0', color:'var(--text-3)', fontSize:14 }}>
-            <div style={{ fontSize:40, marginBottom:12 }}>🔍</div>
-            No jobs match your filters. Try adjusting search terms.
+        {searchMode === 'live' && !user.apiKey && (
+          <div style={{ background:'var(--accent-glow)', border:'1px solid rgba(79,142,247,0.3)', borderRadius:12, padding:'24px', textAlign:'center', color:'var(--text-2)', maxWidth:560, margin:'40px auto' }}>
+            <div style={{ fontSize:32, marginBottom:12 }}>🔑</div>
+            <div style={{ fontWeight:700, fontSize:15, color:'var(--text-1)', marginBottom:6 }}>API Key Required for Live AI Search</div>
+            <div style={{ fontSize:13, color:'var(--text-3)', lineHeight:1.6, marginBottom:16 }}>
+              Enter a Gemini, OpenAI, or OpenRouter API key in the **Settings** view to enable real-time job searching across LinkedIn, Indeed, Glassdoor, and Naukri.com.
+            </div>
+            <Btn variant="primary" onClick={() => dispatch({ type:A.SET_VIEW, payload:'settings' })}>
+              Configure API Key in Settings
+            </Btn>
           </div>
-        ) : (
-          <div className="job-search-grid" style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(440px, 1fr))', gap:14 }}>
-            {filtered.map(job => {
-              const isExpanded = expanded === job.id;
-              const matchData = scores[job.id];
-              const alreadyTracked = applications.some(a => a.roleName === job.roleName && a.companyName === job.companyName);
-              return (
-                <div key={job.id} className="job-search-card">
-                  <div style={{ display:'flex', alignItems:'flex-start', gap:12, marginBottom:12 }}>
-                    <CompanyLogo name={job.companyName} size={40}/>
-                    <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap', marginBottom:3 }}>
-                        <span style={{ fontSize:15, fontWeight:800, color:'var(--text-1)' }}>{job.roleName}</span>
-                        {job.hot && <span style={{ fontSize:9, fontWeight:700, background:'linear-gradient(90deg,#F97316,#EF4444)', color:'white', padding:'2px 7px', borderRadius:10, textTransform:'uppercase', letterSpacing:'0.06em' }}>🔥 Hot</span>}
+        )}
+
+        {!(searchMode === 'live' && !user.apiKey) && (
+          filtered.length === 0 ? (
+            <div style={{ textAlign:'center', padding:'60px 0', color:'var(--text-3)', fontSize:14 }}>
+              <div style={{ fontSize:40, marginBottom:12 }}>🔍</div>
+              {loadingLive ? 'Fetching matching jobs from the web...' : 'No jobs found matching your criteria. Try adjusting search filters.'}
+            </div>
+          ) : (
+            <div className="job-search-grid" style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(440px, 1fr))', gap:14 }}>
+              {filtered.map(job => {
+                const isExpanded = expanded === job.id;
+                const matchData = scores[job.id];
+                const alreadyTracked = applications.some(a => a.roleName === job.roleName && a.companyName === job.companyName);
+                return (
+                  <div key={job.id} className="job-search-card">
+                    <div style={{ display:'flex', alignItems:'flex-start', gap:12, marginBottom:12 }}>
+                      <CompanyLogo name={job.companyName} size={40}/>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap', marginBottom:3 }}>
+                          <span style={{ fontSize:15, fontWeight:800, color:'var(--text-1)' }}>{job.roleName}</span>
+                          {job.hot && <span style={{ fontSize:9, fontWeight:700, background:'linear-gradient(90deg,#F97316,#EF4444)', color:'white', padding:'2px 7px', borderRadius:10, textTransform:'uppercase', letterSpacing:'0.06em' }}>🔥 Hot</span>}
+                        </div>
+                        <div style={{ fontSize:13, fontWeight:600, color:'var(--text-2)', marginBottom:4 }}>{job.companyName}</div>
+                        <div style={{ display:'flex', gap:8, flexWrap:'wrap', alignItems:'center' }}>
+                          <span style={{ fontSize:11, color:'var(--text-3)', display:'flex', alignItems:'center', gap:3 }}>{MapPin && <MapPin size={11}/>}{job.location}</span>
+                          {job.remote && <span className="job-type-pill" style={{ background:'rgba(52,211,153,0.15)', color:'var(--success)' }}>Remote</span>}
+                          <span className="job-type-pill" style={{ background:'var(--surface-2)', color:'var(--text-3)' }}>{job.type}</span>
+                          {(job.salaryMin || job.salaryMax) && (
+                            <span className="mono" style={{ fontSize:11, color:'var(--text-2)', fontWeight:600 }}>
+                              {formatSalary(job.salaryMin, job.salaryMax, currency)}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <div style={{ fontSize:13, fontWeight:600, color:'var(--text-2)', marginBottom:4 }}>{job.companyName}</div>
-                      <div style={{ display:'flex', gap:8, flexWrap:'wrap', alignItems:'center' }}>
-                        <span style={{ fontSize:11, color:'var(--text-3)', display:'flex', alignItems:'center', gap:3 }}>{MapPin && <MapPin size={11}/>}{job.location}</span>
-                        {job.remote && <span className="job-type-pill" style={{ background:'rgba(52,211,153,0.15)', color:'var(--success)' }}>Remote</span>}
-                        <span className="job-type-pill" style={{ background:'var(--surface-2)', color:'var(--text-3)' }}>{job.type}</span>
-                        {job.salaryMin && <span className="mono" style={{ fontSize:11, color:'var(--text-2)', fontWeight:600 }}>${(job.salaryMin/1000).toFixed(0)}K–${(job.salaryMax/1000).toFixed(0)}K</span>}
-                      </div>
+                      {matchData && (
+                        <div style={{ textAlign:'center', flexShrink:0 }}>
+                          <div className="mono" style={{ fontSize:18, fontWeight:800, color:getScoreColor(matchData.score), lineHeight:1 }}>{matchData.score}%</div>
+                          <div style={{ fontSize:9, color:'var(--text-3)', fontWeight:600, textTransform:'uppercase' }}>Match</div>
+                        </div>
+                      )}
                     </div>
-                    {matchData && (
-                      <div style={{ textAlign:'center', flexShrink:0 }}>
-                        <div className="mono" style={{ fontSize:18, fontWeight:800, color:getScoreColor(matchData.score), lineHeight:1 }}>{matchData.score}%</div>
-                        <div style={{ fontSize:9, color:'var(--text-3)', fontWeight:600, textTransform:'uppercase' }}>Match</div>
+
+                    <div style={{ display:'flex', gap:5, flexWrap:'wrap', marginBottom:10 }}>
+                      {job.tags.slice(0,4).map(t => <span key={t} className="tag-chip" style={{ fontSize:10 }}>{t}</span>)}
+                    </div>
+
+                    <div style={{ fontSize:12, color:'var(--text-3)', lineHeight:1.6, marginBottom:10, display: isExpanded ? 'block' : '-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden' }}>
+                      {job.description}
+                    </div>
+                    <button className="btn btn-ghost btn-sm" style={{ fontSize:11, padding:'2px 0', marginBottom:8 }} onClick={() => setExpanded(isExpanded ? null : job.id)}>
+                      {isExpanded ? 'Show less' : 'Show more'}
+                    </button>
+
+                    {isExpanded && job.requirements && job.requirements.length > 0 && (
+                      <div style={{ marginBottom:12 }}>
+                        <div style={{ fontSize:11, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:6 }}>Requirements</div>
+                        <div style={{ display:'flex', flexDirection:'column', gap:3 }}>
+                          {job.requirements.map((r,i) => (
+                            <div key={i} style={{ display:'flex', gap:8, alignItems:'flex-start', fontSize:12, color:'var(--text-2)' }}>
+                              <span style={{ color:'var(--success)', flexShrink:0, marginTop:2 }}>✓</span>{r}
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
-                  </div>
 
-                  <div style={{ display:'flex', gap:5, flexWrap:'wrap', marginBottom:10 }}>
-                    {job.tags.slice(0,4).map(t => <span key={t} className="tag-chip" style={{ fontSize:10 }}>{t}</span>)}
-                  </div>
-
-                  <div style={{ fontSize:12, color:'var(--text-3)', lineHeight:1.6, marginBottom:10, display: isExpanded ? 'block' : '-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden' }}>
-                    {job.description}
-                  </div>
-                  <button className="btn btn-ghost btn-sm" style={{ fontSize:11, padding:'2px 0', marginBottom:8 }} onClick={() => setExpanded(isExpanded ? null : job.id)}>
-                    {isExpanded ? 'Show less' : 'Show more'}
-                  </button>
-
-                  {isExpanded && job.requirements && (
-                    <div style={{ marginBottom:12 }}>
-                      <div style={{ fontSize:11, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:6 }}>Requirements</div>
-                      <div style={{ display:'flex', flexDirection:'column', gap:3 }}>
-                        {job.requirements.map((r,i) => (
-                          <div key={i} style={{ display:'flex', gap:8, alignItems:'flex-start', fontSize:12, color:'var(--text-2)' }}>
-                            <span style={{ color:'var(--success)', flexShrink:0, marginTop:2 }}>✓</span>{r}
-                          </div>
-                        ))}
+                    {matchData?.reason && isExpanded && (
+                      <div style={{ background:'var(--accent-glow)', border:'1px solid rgba(79,142,247,0.2)', borderRadius:8, padding:'10px 12px', fontSize:12, color:'var(--text-2)', lineHeight:1.6, marginBottom:10 }}>
+                        {Sparkles && <Sparkles size={11} style={{ display:'inline', marginRight:5, color:'var(--accent)' }}/>}{matchData.reason}
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {matchData?.reason && isExpanded && (
-                    <div style={{ background:'var(--accent-glow)', border:'1px solid rgba(79,142,247,0.2)', borderRadius:8, padding:'10px 12px', fontSize:12, color:'var(--text-2)', lineHeight:1.6, marginBottom:10 }}>
-                      {Sparkles && <Sparkles size={11} style={{ display:'inline', marginRight:5, color:'var(--accent)' }}/>}{matchData.reason}
+                    <div style={{ display:'flex', gap:8, paddingTop:8, borderTop:'1px solid var(--border)' }}>
+                      <a href={job.applyUrl} target="_blank" rel="noopener noreferrer"
+                        className="btn btn-primary" style={{ flex:1, textDecoration:'none', justifyContent:'center', fontSize:13 }}>
+                        {ExternalLink && <ExternalLink size={13}/>} Apply Now
+                      </a>
+                      <button className="btn btn-secondary" style={{ fontSize:12 }}
+                        onClick={() => scoreJob(job)} disabled={scoring === job.id} title="Score your match with AI">
+                        {scoring === job.id ? <Spinner size={12}/> : (Target && <Target size={13}/>)}
+                        {matchData ? 'Re-score' : 'AI Score'}
+                      </button>
+                      <button className="btn btn-ghost" style={{ fontSize:12 }}
+                        onClick={() => addToTracker(job)} disabled={alreadyTracked} title={alreadyTracked ? 'Already tracked' : 'Add to tracker'}>
+                        {alreadyTracked ? (CheckCircle && <CheckCircle size={13} style={{ color:'var(--success)' }}/>) : (Plus && <Plus size={13}/>)}
+                      </button>
                     </div>
-                  )}
-
-                  <div style={{ display:'flex', gap:8, paddingTop:8, borderTop:'1px solid var(--border)' }}>
-                    <a href={job.applyUrl} target="_blank" rel="noopener noreferrer"
-                      className="btn btn-primary" style={{ flex:1, textDecoration:'none', justifyContent:'center', fontSize:13 }}>
-                      {ExternalLink && <ExternalLink size={13}/>} Apply Now
-                    </a>
-                    <button className="btn btn-secondary" style={{ fontSize:12 }}
-                      onClick={() => scoreJob(job)} disabled={scoring === job.id} title="Score your match with AI">
-                      {scoring === job.id ? <Spinner size={12}/> : (Target && <Target size={13}/>)}
-                      {matchData ? 'Re-score' : 'AI Score'}
-                    </button>
-                    <button className="btn btn-ghost" style={{ fontSize:12 }}
-                      onClick={() => addToTracker(job)} disabled={alreadyTracked} title={alreadyTracked ? 'Already tracked' : 'Add to tracker'}>
-                      {alreadyTracked ? (CheckCircle && <CheckCircle size={13} style={{ color:'var(--success)' }}/>) : (Plus && <Plus size={13}/>)}
-                    </button>
+                    <div style={{ fontSize:10, color:'var(--text-3)', marginTop:6, textAlign:'right' }}>Posted {job.posted}</div>
                   </div>
-                  <div style={{ fontSize:10, color:'var(--text-3)', marginTop:6, textAlign:'right' }}>Posted {job.posted}</div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )
         )}
       </div>
     </div>
