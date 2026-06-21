@@ -592,6 +592,7 @@ const LS = {
   LOGOS:            'careerdeck_logo_cache',
   BUILT_RESUME:     'careerdeck_built_resume',
   INTERVIEW_HIST:   'careerdeck_interview_history',
+  INTERVIEW_CFG:    'careerdeck_interview_config',
 };
 
 const PRIORITY_META = {
@@ -2250,6 +2251,10 @@ function JobSearchView() {
   const [scores,   setScores]   = useState({});
   const [expanded, setExpanded] = useState(null);
 
+  // Custom multi-select portal state
+  const [selectedPortals, setSelectedPortals] = useState(['LinkedIn', 'Naukri.com', 'Indeed']);
+  const [portalDropdownOpen, setPortalDropdownOpen] = useState(false);
+
   const JOB_TYPES = ['All','Full-time','Contract','Part-time'];
 
   const filtered = useMemo(() => {
@@ -2279,6 +2284,7 @@ function JobSearchView() {
       addToast('Add an API key in Settings to search live jobs', 'warning');
       return;
     }
+    const targetPortals = selectedPortals.length > 0 ? selectedPortals : ['LinkedIn', 'Naukri.com', 'Indeed'];
     setLoadingLive(true);
     try {
       const baseResume = ls_get(LS.RESUME, '');
@@ -2287,8 +2293,8 @@ function JobSearchView() {
       const resumeContext = resumeText ? `Candidate Profile Context (align search with this profile):\n${resumeText.slice(0, 1000)}` : 'No resume profile provided.';
 
       const sys = `You are a real-time job search agent. Use your web-search grounding or real-time web knowledge to find exactly 5 to 7 ACTIVE, REAL job openings matching the search query.
-For each job, you MUST provide real, active URLs to apply directly on LinkedIn, Naukri.com, Indeed, Glassdoor, or the company careers page.
-Verify that the URLs are actual active links.
+For each job, you MUST search on and provide real, active URLs to apply directly on these job portals: ${targetPortals.join(', ')}.
+Verify that the URLs are actual active links pointing to these selected portals or to careers pages of companies hiring on them.
 
 Return ONLY a valid JSON array of job listings matching this schema, with no markdown formatting, no code block backticks (e.g. do not wrap with \`\`\`json):
 [
@@ -2319,6 +2325,7 @@ Return ONLY a valid JSON array of job listings matching this schema, with no mar
         const salVal = Number(salaryMin) * (currency === 'INR' ? 100000 : 1000);
         searchTerms.push(`Min salary: ${salVal} ${currency}`);
       }
+      searchTerms.push(`Target Job Portals: Search only on: ${targetPortals.join(', ')}`);
 
       const queryMsg = `Find live active job openings with these parameters:
 ${searchTerms.join('\n')}
@@ -2426,16 +2433,123 @@ Please return the JSON array of real jobs now.`;
       <div style={{ padding:'14px 24px', borderBottom:'1px solid var(--border)', flexShrink:0, display:'flex', gap:10, flexWrap:'wrap', alignItems:'center' }}>
         <div style={{ position:'relative', flex:2, minWidth:180 }}>
           <div style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none' }}>{Search && <Search size={14}/>}</div>
-          <input className="field-input" style={{ paddingLeft:34, fontSize:13 }} placeholder="Role, company, or skill…" value={keyword} onChange={e => setKeyword(e.target.value)}/>
+          <input className="field-input" style={{ paddingLeft:34, fontSize:13 }} placeholder="Role, company, or skill…" value={keyword} onChange={e => setKeyword(e.target.value)} list="role-suggestions"/>
         </div>
         <div style={{ position:'relative', flex:1, minWidth:140 }}>
           <div style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none' }}>{MapPin && <MapPin size={14}/>}</div>
-          <input className="field-input" style={{ paddingLeft:34, fontSize:13 }} placeholder="Location…" value={location} onChange={e => setLocation(e.target.value)}/>
+          <input className="field-input" style={{ paddingLeft:34, fontSize:13 }} placeholder="Location…" value={location} onChange={e => setLocation(e.target.value)} list="location-suggestions"/>
         </div>
         <select className="field-input" style={{ width:120, fontSize:13 }} value={jobType} onChange={e => setJobType(e.target.value)}>
           {JOB_TYPES.map(t => <option key={t}>{t}</option>)}
         </select>
         
+        {/* Portal Multi-Select Dropdown */}
+        {searchMode === 'live' && (
+          <div style={{ position:'relative', minWidth:140 }}>
+            <button 
+              type="button" 
+              className="field-input" 
+              style={{ 
+                width:'100%', 
+                fontSize:13, 
+                display:'flex', 
+                justifyContent:'space-between', 
+                alignItems:'center', 
+                gap:6, 
+                cursor:'pointer', 
+                background:'var(--surface-2)', 
+                textAlign:'left' 
+              }} 
+              onClick={() => setPortalDropdownOpen(!portalDropdownOpen)}
+            >
+              <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                {selectedPortals.length === 0 ? 'No Portals' : selectedPortals.length === 3 ? 'All Portals' : selectedPortals.join(', ')}
+              </span>
+              {ChevronDown && <ChevronDown size={14} style={{ flexShrink:0, color:'var(--text-3)' }}/>}
+            </button>
+            
+            {portalDropdownOpen && (
+              <>
+                <div 
+                  style={{ position:'fixed', inset:0, zIndex:29 }} 
+                  onClick={() => setPortalDropdownOpen(false)} 
+                />
+                <div 
+                  className="dropdown-menu" 
+                  style={{ 
+                    left:0, 
+                    top:'100%', 
+                    marginTop:6, 
+                    minWidth:185, 
+                    padding:6, 
+                    display:'flex', 
+                    flexDirection:'column', 
+                    gap:2,
+                    zIndex:30
+                  }}
+                >
+                  <div 
+                    className="dropdown-item" 
+                    style={{ 
+                      fontWeight:600, 
+                      borderBottom:'1px solid var(--border)', 
+                      paddingBottom:6, 
+                      marginBottom:4,
+                      display:'flex',
+                      alignItems:'center',
+                      gap:8
+                    }} 
+                    onClick={() => {
+                      if (selectedPortals.length === 3) {
+                        setSelectedPortals([]);
+                      } else {
+                        setSelectedPortals(['LinkedIn', 'Naukri.com', 'Indeed']);
+                      }
+                    }}
+                  >
+                    <input 
+                      type="checkbox" 
+                      checked={selectedPortals.length === 3} 
+                      onChange={() => {}} // controlled onClick of parent div
+                      style={{ cursor:'pointer' }} 
+                    />
+                    <span>Select All</span>
+                  </div>
+                  {['LinkedIn', 'Naukri.com', 'Indeed'].map(portal => {
+                    const checked = selectedPortals.includes(portal);
+                    return (
+                      <div 
+                        key={portal} 
+                        className="dropdown-item" 
+                        style={{ 
+                          display:'flex', 
+                          alignItems:'center', 
+                          gap:8 
+                        }} 
+                        onClick={() => {
+                          if (checked) {
+                            setSelectedPortals(selectedPortals.filter(p => p !== portal));
+                          } else {
+                            setSelectedPortals([...selectedPortals, portal]);
+                          }
+                        }}
+                      >
+                        <input 
+                          type="checkbox" 
+                          checked={checked} 
+                          onChange={() => {}} // controlled onClick of parent div
+                          style={{ cursor:'pointer' }} 
+                        />
+                        <span>{portal}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
         {/* Currency Switcher */}
         <select className="field-input" style={{ width:85, fontSize:13 }} value={currency} onChange={e => setCurrency(e.target.value)}>
           <option value="USD">USD ($)</option>
@@ -2455,7 +2569,7 @@ Please return the JSON array of real jobs now.`;
         </label>
         
         {searchMode === 'live' ? (
-          <Btn variant="primary" onClick={fetchLiveJobs} disabled={loadingLive} style={{ fontSize:13 }}>
+          <Btn variant="primary" onClick={fetchLiveJobs} disabled={loadingLive || selectedPortals.length === 0} style={{ fontSize:13 }}>
             {loadingLive ? <Spinner size={12}/> : (Search && <Search size={13}/>)}
             {loadingLive ? 'Searching...' : 'Search Live Web'}
           </Btn>
@@ -2577,6 +2691,35 @@ Please return the JSON array of real jobs now.`;
           )
         )}
       </div>
+      
+      {/* Auto-suggestions datalists */}
+      <datalist id="role-suggestions">
+        <option value="Software Engineer" />
+        <option value="Frontend Developer" />
+        <option value="Backend Developer" />
+        <option value="Full Stack Developer" />
+        <option value="React Developer" />
+        <option value="Node.js Engineer" />
+        <option value="iOS Developer" />
+        <option value="Android Developer" />
+        <option value="Data Scientist" />
+        <option value="Product Manager" />
+        <option value="DevOps Engineer" />
+        <option value="UI/UX Designer" />
+      </datalist>
+
+      <datalist id="location-suggestions">
+        <option value="Remote" />
+        <option value="San Francisco, CA" />
+        <option value="New York, NY" />
+        <option value="London, UK" />
+        <option value="Mumbai, India" />
+        <option value="Bangalore, India" />
+        <option value="Hyderabad, India" />
+        <option value="Pune, India" />
+        <option value="Delhi NCR, India" />
+        <option value="Singapore" />
+      </datalist>
     </div>
   );
 }
@@ -3037,7 +3180,25 @@ function MockInterviewView() {
   const { state, addToast } = useApp();
   const { user } = state;
   const [phase, setPhase]   = useState('setup');   // setup | session | results
-  const [config, setConfig] = useState({ type:'behavioral', level:'Mid-level', duration:INTERVIEW_DURATIONS[1] });
+  const [config, setConfig] = useState(() => {
+    const saved = ls_get(LS.INTERVIEW_CFG, null);
+    if (saved) {
+      return {
+        type: 'behavioral',
+        level: 'Mid-level',
+        duration: INTERVIEW_DURATIONS[1],
+        company: '',
+        customRole: '',
+        ...saved
+      };
+    }
+    return { type:'behavioral', level:'Mid-level', duration:INTERVIEW_DURATIONS[1], company: '', customRole: '' };
+  });
+
+  useEffect(() => {
+    ls_set(LS.INTERVIEW_CFG, config);
+  }, [config]);
+
   const [questions, setQuestions] = useState([]);
   const [currentQ, setCurrentQ]   = useState(0);
   const [answers, setAnswers]     = useState([]);
@@ -3064,10 +3225,23 @@ function MockInterviewView() {
     if (!user.apiKey) { addToast('Add API key in Settings to generate questions','warning'); return; }
     setGenerating(true);
     try {
-      const sys = 'You are an expert interviewer. Generate realistic interview questions. Return ONLY a JSON array of strings with exactly the specified number of questions.';
-      const msg = `Generate ${config.duration.count} ${config.type} interview questions for a ${config.level} role.
+      const targetDetails = [];
+      if (config.company) targetDetails.push(`at the company "${config.company}"`);
+      if (config.customRole) {
+        targetDetails.push(`specifically tailored for the custom role "${config.customRole}" (replacing standard generic roles)`);
+      } else {
+        targetDetails.push(`for a generic ${config.level} role`);
+      }
+
+      const promptContext = targetDetails.length > 0 ? `Target details: ${targetDetails.join(' and ')}.` : '';
+
+      const sys = `You are an expert interviewer. Generate realistic interview questions. If a target company or custom role is specified, utilize your knowledge of actual interviews and data analysis at that company/role to generate authentic questions historically asked for that position. Return ONLY a JSON array of strings with exactly the specified number of questions. Do not include markdown formatting, backticks, or 'json' prefixes.`;
+      
+      const msg = `Generate ${config.duration.count} ${config.type} interview questions ${config.level ? `at experience level: ${config.level}` : ''}.
+${promptContext}
 Focus: ${INTERVIEW_TYPES.find(t=>t.id===config.type)?.desc}
-Make them realistic, challenging, and varied. No numbering, just the question text.`;
+Make them realistic, challenging, and highly aligned with the target company's real-life interview standards (for example, if Google is specified, ask typical Google style coding, system design, or behavioral questions matching the role level). No numbering, just the question text.`;
+
       let full = '';
       await callLLM(sys, msg, t => { full = t; }, { provider:user.llmProvider, model:user.llmModel, apiKey:user.apiKey });
       const qs = parseAIJSON(full);
@@ -3108,12 +3282,36 @@ Make them realistic, challenging, and varied. No numbering, just the question te
     setGenerating(true);
     try {
       const qa = questions.map((q,i) => `Q: ${q}\nA: ${finalAnswers[i]||'(no answer)'}`).join('\n\n');
-      const sys = 'You are an expert interview coach. Evaluate the candidate responses and return ONLY valid JSON matching this exact schema: {"overall_score":number,"summary":"2-sentence summary","strengths":["str1","str2"],"improvements":["imp1","imp2"],"question_scores":[{"question":"...","score":number,"feedback":"..."}]}';
+      
+      const targetContext = [];
+      if (config.company) targetContext.push(`Target Company: ${config.company}`);
+      if (config.customRole) targetContext.push(`Target Role: ${config.customRole}`);
+      const targetPrompt = targetContext.length > 0 ? `Evaluate the answers specifically against standard benchmarks and rubrics for ${targetContext.join(' - ')} at the ${config.level} level.` : `Evaluate the answers for a generic ${config.level} role.`;
+
+      const sys = `You are an expert interview coach. Evaluate the candidate's answers. ${targetPrompt} Return ONLY valid JSON matching this exact schema: {"overall_score":number,"summary":"2-sentence summary","strengths":["str1","str2"],"improvements":["imp1","imp2"],"question_scores":[{"question":"...","score":number,"feedback":"..."}]}`;
+      
+      const msg = `Interview Type: ${config.type}
+Level: ${config.level}
+${config.company ? `Target Company: ${config.company}` : ''}
+${config.customRole ? `Target Role: ${config.customRole}` : ''}
+
+Evaluate the following responses:
+${qa}`;
+
       let full = '';
-      await callLLM(sys, `Interview type: ${config.type} (${config.level})\n\n${qa}`, t => { full = t; }, { provider:user.llmProvider, model:user.llmModel, apiKey:user.apiKey });
+      await callLLM(sys, msg, t => { full = t; }, { provider:user.llmProvider, model:user.llmModel, apiKey:user.apiKey });
       const result = parseAIJSON(full);
       setFeedback(result);
-      const newSession = { id:uid(), date:now(), type:config.type, level:config.level, score:result.overall_score, questions:questions.length };
+      const newSession = { 
+        id:uid(), 
+        date:now(), 
+        type:config.type, 
+        level:config.level, 
+        score:result.overall_score, 
+        questions:questions.length,
+        company: config.company || '',
+        customRole: config.customRole || ''
+      };
       const newHistory = [newSession, ...history].slice(0,10);
       setHistory(newHistory);
       ls_set(LS.INTERVIEW_HIST, newHistory);
@@ -3160,6 +3358,11 @@ Make them realistic, challenging, and varied. No numbering, just the question te
               <div style={{ fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.6)', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:6 }}>
                 {INTERVIEW_TYPES.find(t=>t.id===config.type)?.emoji} {config.type} · {config.level}
               </div>
+              {(config.customRole || config.company) && (
+                <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.95)', marginBottom:4 }}>
+                  Target: {config.customRole || 'Selected Role'}{config.company ? ` at ${config.company}` : ''}
+                </div>
+              )}
               <div style={{ fontSize:18, fontWeight:800, color:'white', marginBottom:8 }}>
                 {feedback.overall_score >= 85 ? '🏆 Excellent Performance!' : feedback.overall_score >= 70 ? '✅ Good Job!' : feedback.overall_score >= 50 ? '📈 Keep Practicing!' : '💪 Room to Grow'}
               </div>
@@ -3309,6 +3512,33 @@ Make them realistic, challenging, and varied. No numbering, just the question te
           </div>
         </div>
 
+        {/* Target Position (Optional) */}
+        <div>
+          <div style={{ fontSize:13, fontWeight:700, color:'var(--text-1)', marginBottom:12 }}>Target Position (Optional)</div>
+          <div className="responsive-grid-2" style={{ gap:20 }}>
+            <div>
+              <label className="field-label" style={{ fontSize:11, color:'var(--text-3)', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:6 }}>Target Company</label>
+              <input 
+                className="field-input" 
+                style={{ fontSize:13 }} 
+                placeholder="e.g. Google, Stripe, Netflix" 
+                value={config.company || ''} 
+                onChange={e=>setConfig(c=>({...c,company:e.target.value}))}
+              />
+            </div>
+            <div>
+              <label className="field-label" style={{ fontSize:11, color:'var(--text-3)', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:6 }}>Custom Role / Position</label>
+              <input 
+                className="field-input" 
+                style={{ fontSize:13 }} 
+                placeholder="e.g. Senior iOS Developer, Staff DevOps" 
+                value={config.customRole || ''} 
+                onChange={e=>setConfig(c=>({...c,customRole:e.target.value}))}
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Level + Duration */}
         <div className="responsive-grid-2" style={{ gap:20 }}>
           <div>
@@ -3344,7 +3574,14 @@ Make them realistic, challenging, and varied. No numbering, just the question te
                 <div key={s.id} style={{ display:'flex', alignItems:'center', gap:12, padding:'8px 0', borderBottom:'1px solid var(--border)' }}>
                   <span style={{ fontSize:16 }}>{INTERVIEW_TYPES.find(t=>t.id===s.type)?.emoji||'🎤'}</span>
                   <div style={{ flex:1 }}>
-                    <div style={{ fontSize:12, fontWeight:600, color:'var(--text-1)' }}>{INTERVIEW_TYPES.find(t=>t.id===s.type)?.label} · {s.level}</div>
+                    <div style={{ fontSize:12, fontWeight:600, color:'var(--text-1)' }}>
+                      {INTERVIEW_TYPES.find(t=>t.id===s.type)?.label} · {s.level}
+                      {(s.customRole || s.company) && (
+                        <span style={{ fontSize:11, color:'var(--text-2)', marginLeft:6 }}>
+                          ({s.customRole || 'Custom Role'}{s.company ? ` @ ${s.company}` : ''})
+                        </span>
+                      )}
+                    </div>
                     <div style={{ fontSize:11, color:'var(--text-3)' }}>{s.questions} questions · {formatRelative(s.date)}</div>
                   </div>
                   <div className="mono" style={{ fontSize:16, fontWeight:800, color:getScoreColor(s.score) }}>{s.score}/100</div>
