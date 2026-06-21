@@ -1849,6 +1849,28 @@ function Sidebar() {
           <span className="sidebar-label">Add Job</span>
         </button>
 
+        {/* Upload Resume button */}
+        <button className="btn btn-secondary" style={{ width:'100%', marginTop:6, display:'flex', gap:6, justifyContent:'center', alignItems:'center' }}
+          onClick={() => {
+            dispatch({ type:A.SET_VIEW, payload:'settings' });
+            setTimeout(() => {
+              const el = document.getElementById('settings-resume-section');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.style.outline = '2px solid var(--accent)';
+                el.style.boxShadow = '0 0 16px var(--accent-glow)';
+                setTimeout(() => {
+                  el.style.outline = 'none';
+                  el.style.boxShadow = 'none';
+                }, 1500);
+              }
+            }, 100);
+          }}
+          aria-label="Upload Resume">
+          {Upload && <Upload size={14} />}
+          <span className="sidebar-label">Upload Resume</span>
+        </button>
+
         {/* Keyboard shortcut hint */}
         <button className="nav-item" style={{ marginTop:4, fontSize:11, color:'var(--text-3)' }}
           onClick={() => dispatch({ type:A.TOGGLE_PALETTE })}
@@ -4323,7 +4345,7 @@ function SettingsView() {
       </div>
 
       {/* Base Resume */}
-      <div className="settings-section">
+      <div id="settings-resume-section" className="settings-section" style={{ transition: 'outline 0.15s ease-in-out', borderRadius: 12 }}>
         <div className="settings-section-header">{FileText&&<FileText size={15}/>} Base Resume</div>
         <div className="settings-section-body">
           <div className="field-group">
