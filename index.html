@@ -2309,7 +2309,7 @@ function JobSearchView() {
     const targetPortals = selectedPortals.length > 0 ? selectedPortals : ['LinkedIn', 'Naukri.com', 'Indeed'];
     setLoadingLive(true);
     try {
-      const baseResume = ls_get(LS.RESUME, '');
+      const baseResume = user.baseResume;
       const builtResume = ls_get(LS.BUILT_RESUME, null);
       const resumeText = baseResume || (builtResume ? `${builtResume.personalInfo?.name || ''}\n${builtResume.summary || ''}\nSkills: ${builtResume.skills?.map(s => s.items?.join(', ')).join(', ') || ''}` : '');
       const resumeContext = resumeText ? `Candidate Profile Context (align search with this profile):\n${resumeText.slice(0, 1000)}` : 'No resume profile provided.';
@@ -2395,7 +2395,7 @@ Please return the JSON array of real jobs now.`;
 
   const scoreJob = async (job) => {
     if (!user.apiKey) { addToast('Add an API key in Settings to score jobs', 'warning'); return; }
-    const baseResume = ls_get(LS.RESUME, '');
+    const baseResume = user.baseResume;
     const builtResume = ls_get(LS.BUILT_RESUME, null);
     const resumeText = baseResume || (builtResume ? `${builtResume.personalInfo?.name}\n${builtResume.summary}\nSkills: ${builtResume.skills?.map(s => s.items?.join(', ')).join(', ')}` : '');
     if (!resumeText) { addToast('Add your resume in Settings first', 'warning'); return; }
