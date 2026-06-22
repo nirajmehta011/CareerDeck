@@ -736,8 +736,11 @@ function closeTruncatedJSON(str) {
 }
 
 function parseAIJSON(text) {
+  // Step 0: Strip Google Search grounding footnotes (e.g. [1], [2], [1, 2]) attached to words/URLs
+  const noCitations = text.replace(/(\w|["'\/.-])\[\d+(?:\s*,\s*\d+)*\]/g, '$1');
+
   // Step 1: strip markdown code fences
-  let cleaned = text.replace(/```(?:json)?\s*/gi, '').replace(/```\s*$/g, '').trim();
+  let cleaned = noCitations.replace(/```(?:json)?\s*/gi, '').replace(/```\s*$/g, '').trim();
 
   // Step 2: find outermost JSON boundaries (either object {} or array [])
   const firstObject = cleaned.indexOf('{');
@@ -2454,8 +2457,9 @@ function JobSearchView() {
 
     const buildPrompt = (attempt) => {
       const count = attempt === 1 ? '8 to 10' : '5 to 8';
-      return `You are an expert job search engine with access to real-time data from ${portals.join(', ')}.
-Search for ${count} ACTIVE job listings that match the following criteria:
+      return `You are an expert real-time job search engine with access to live internet search tools.
+Search for ${count} REAL, ACTIVE job listings matching the search criteria. 
+Do NOT generate dummy or placeholder data. Every single job must represent an actual, open position that can be applied to right now.
 
 SEARCH CRITERIA:
 - Role/Keywords: ${keyword || '(any)'}
@@ -2467,19 +2471,18 @@ ${dateHint ? '- '+dateHint : ''}
 ${salHint ? '- '+salHint : ''}
 ${salMaxHint ? '- '+salMaxHint : ''}
 - Job Type: ${jobType}
-- Preferred Portals: ${portals.join(', ')}
+- Preferred Portals/Sources: ${portals.join(', ')} (Also showcase direct company career page listings where possible)
 - Target Currency: ${currency}
 
 ${resumeCtx}
 
-IMPORTANT RULES:
-1. Return ONLY valid JSON array — no markdown, no code fences, no explanation text.
-2. Every job MUST have a real, working applyUrl pointing to the actual job posting on the portal.
-3. The applyUrl must be a direct link to the job listing page, not just the homepage.
-4. Include diverse companies (mix of startups, mid-size, enterprise).
-5. Salary values must be numbers in ${currency} (e.g., for INR write 1200000, not "12 LPA").
-6. Each job must have at least 3 requirements and 3 tags.
-7. The 'source' field should name which portal (LinkedIn/Indeed/Naukri.com/Glassdoor) each job is from.
+IMPORTANT REDIRECTION & URL RULES:
+1. Every job MUST have a real, working, direct applyUrl pointing to the actual job application form (e.g. Lever, Greenhouse, Workday, or the direct portal listing page).
+2. DO NOT return generic homepage URLs (such as "https://google.com" or "https://linkedin.com").
+3. DO NOT return search result list URLs. The user must be redirected to the specific job page when they click Apply.
+4. The 'source' field should contain the hosting platform (e.g., "LinkedIn", "Indeed", "Naukri.com", "Glassdoor", or the specific company name like "Google" or "Stripe" if it's a direct careers page application).
+5. All JSON values must be clean. Do not include markdown or footnotes.
+6. Return ONLY a valid JSON array — no markdown code fences (no \`\`\`json), no explanation text.
 
 Return this exact JSON schema:
 [
@@ -2500,9 +2503,9 @@ Return this exact JSON schema:
     "requirements": ["string", "string", "string"],
     "benefits": ["string"],
     "tags": ["string", "string", "string"],
-    "applyUrl": "string",
-    "source": "LinkedIn" | "Indeed" | "Naukri.com" | "Glassdoor",
-    "posted": "string",
+    "applyUrl": "string (must be direct apply link)",
+    "source": "string (e.g., LinkedIn, Indeed, Naukri.com, Glassdoor, or Direct Company)",
+    "posted": "string (e.g., '1d ago', '2d ago')",
     "hot": boolean,
     "easyApply": boolean
   }
@@ -2513,10 +2516,9 @@ Return this exact JSON schema:
       let fullResponse = '';
       await callLLM(
         buildPrompt(attempt),
-        `Search for jobs now. Role: "${keyword||'any'}", Location: "${location||'anywhere'}", Portals: ${portals.join(', ')}. Return JSON only.`,
+        `Perform search for active jobs: "${keyword||'any'}", Location: "${location||'any'}", Company: "${company||'any'}" on ${portals.join(', ')}. Return JSON only.`,
         t => { fullResponse = t; },
-        // webSearch DISABLED: Gemini grounding injects citation markup that breaks JSON parsing
-        { provider: user.llmProvider, model: user.llmModel, apiKey: user.apiKey }
+        { provider: user.llmProvider, model: user.llmModel, apiKey: user.apiKey, webSearch: true }
       );
       return fullResponse;
     };
@@ -2680,14 +2682,23 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
   // ── Portal apply picker ──
   const ApplyPortalPicker = ({ job }) => (
     <div className="portal-picker-dropdown">
-      <div style={{ fontSize:10, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.07em', padding:'4px 12px 8px' }}>Find on Portal</div>
+      <div style={{ fontSize:10, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.07em', padding:'4px 12px 8px' }}>Apply Options</div>
+      {job.applyUrl && job.applyUrl !== '#' && !job.applyUrl.includes('search') && (
+        <a href={job.applyUrl} target="_blank" rel="noopener noreferrer" className="portal-picker-item" 
+          style={{ borderBottom:'1px solid var(--border)', paddingBottom:8, marginBottom:6 }}
+          onClick={() => setApplyPortalOpen(null)}>
+          <span className="portal-badge default">Direct Apply</span>
+          <span style={{ fontSize:11, fontWeight:700, color:'var(--accent)' }}>Go to Careers Page</span>
+          {ExternalLink && <ExternalLink size={10} style={{ marginLeft:'auto', color:'var(--text-3)' }}/>}
+        </a>
+      )}
       {ALL_PORTALS.map(p => (
         <a key={p} href={buildApplyUrl(p, job.roleName, job.companyName, job.location, job.remote)}
           target="_blank" rel="noopener noreferrer" className="portal-picker-item"
           onClick={() => setApplyPortalOpen(null)}
           title={`Search "${job.roleName}" at ${job.companyName} on ${p}`}>
           <span className={`portal-badge ${getPortalBadgeClass(p)}`}>{p}</span>
-          <span style={{ fontSize:11 }}>Find on {p}</span>
+          <span style={{ fontSize:11 }}>Search on {p}</span>
           {ExternalLink && <ExternalLink size={10} style={{ marginLeft:'auto', color:'var(--text-3)' }}/>}
         </a>
       ))}
@@ -2761,175 +2772,222 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
       {/* Search Bar */}
       <div style={{ borderBottom:'1px solid var(--border)', flexShrink:0, background:'var(--surface)' }}>
 
-        {/* Row 1: Main fields in grid - never wraps */}
-        <div style={{ padding:'12px 20px 10px', display:'grid', gridTemplateColumns:'1fr 165px 185px auto auto', gap:8, alignItems:'center' }}>
+        {/* Row 1: Main fields in grid - never wraps, aligned flex-end so labels sit above fields */}
+        <div style={{ padding:'16px 20px 14px', display:'grid', gridTemplateColumns:'1fr 180px 200px auto auto', gap:12, alignItems:'flex-end' }}>
 
-          <div style={{ position:'relative' }}>
-            <div style={{ position:'absolute', left:11, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none' }}>
-              {Search && <Search size={14}/>}
+          {/* Keyword Field */}
+          <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
+            <span style={{ fontSize:10, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.06em' }}>What (Role, Skill, Keyword)</span>
+            <div style={{ position:'relative' }}>
+              <div style={{ position:'absolute', left:11, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none' }}>
+                {Search && <Search size={14}/>}
+              </div>
+              <input id="js-keyword" className="field-input"
+                style={{ paddingLeft:34, fontSize:13, height:38, width:'100%' }}
+                placeholder="e.g. React Developer, ML Engineer..."
+                value={keyword} onChange={e => setKeyword(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && searchMode === 'live' && fetchLiveJobs()}
+                list="role-suggestions"
+              />
             </div>
-            <input id="js-keyword" className="field-input"
-              style={{ paddingLeft:34, fontSize:13, height:38, width:'100%' }}
-              placeholder="Job title, skill, or keyword..."
-              value={keyword} onChange={e => setKeyword(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && searchMode === 'live' && fetchLiveJobs()}
-              list="role-suggestions"
-            />
           </div>
 
-          <div style={{ position:'relative' }}>
-            <span style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none', fontSize:13 }}>🏢</span>
-            <input id="js-company" className="field-input"
-              style={{ paddingLeft:30, fontSize:13, height:38, width:'100%' }}
-              placeholder="Company..."
-              value={company} onChange={e => setCompany(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && searchMode === 'live' && fetchLiveJobs()}
-              list="company-suggestions"
-            />
-          </div>
-
-          <div style={{ position:'relative' }}>
-            <div style={{ position:'absolute', left:11, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none' }}>
-              {MapPin && <MapPin size={13}/>}
+          {/* Company Field */}
+          <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
+            <span style={{ fontSize:10, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.06em' }}>Company (Optional)</span>
+            <div style={{ position:'relative' }}>
+              <span style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none', fontSize:13 }}>🏢</span>
+              <input id="js-company" className="field-input"
+                style={{ paddingLeft:30, fontSize:13, height:38, width:'100%' }}
+                placeholder="e.g. Google, Stripe..."
+                value={company} onChange={e => setCompany(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && searchMode === 'live' && fetchLiveJobs()}
+                list="company-suggestions"
+              />
             </div>
-            <input id="js-location" className="field-input"
-              style={{ paddingLeft:30, fontSize:13, height:38, width:'100%' }}
-              placeholder="City or Remote..."
-              value={location} onChange={e => setLocation(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && searchMode === 'live' && fetchLiveJobs()}
-              list="location-suggestions"
-            />
           </div>
 
-          <label style={{
-            display:'flex', alignItems:'center', gap:5, cursor:'pointer', fontSize:12,
-            color: remoteOnly ? '#34D399' : 'var(--text-2)', whiteSpace:'nowrap',
-            padding:'0 12px', height:38,
-            background: remoteOnly ? 'rgba(52,211,153,0.12)' : 'var(--surface-2)',
-            border: '1px solid ' + (remoteOnly ? 'rgba(52,211,153,0.5)' : 'var(--border)'),
-            borderRadius:8, transition:'all 0.15s', fontWeight:600,
-          }}>
-            <input type="checkbox" checked={remoteOnly} onChange={e => setRemoteOnly(e.target.checked)}
-              style={{ accentColor:'#34D399', width:13, height:13, margin:0 }}/>
-            <span>🌐 Remote</span>
-          </label>
+          {/* Location Field */}
+          <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
+            <span style={{ fontSize:10, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.06em' }}>Where (City or Country)</span>
+            <div style={{ position:'relative' }}>
+              <div style={{ position:'absolute', left:11, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none' }}>
+                {MapPin && <MapPin size={13}/>}
+              </div>
+              <input id="js-location" className="field-input"
+                style={{ paddingLeft:30, fontSize:13, height:38, width:'100%' }}
+                placeholder="e.g. San Francisco, London..."
+                value={location} onChange={e => setLocation(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && searchMode === 'live' && fetchLiveJobs()}
+                list="location-suggestions"
+              />
+            </div>
+          </div>
 
-          {searchMode === 'live' ? (
-            <button className="btn btn-primary" onClick={fetchLiveJobs} disabled={loadingLive}
-              style={{ height:38, paddingLeft:16, paddingRight:16, fontSize:13, gap:6, minWidth:120, whiteSpace:'nowrap' }}>
-              {loadingLive
-                ? <span style={{ display:'flex', alignItems:'center', gap:6 }}><Spinner size={12}/> Searching...</span>
-                : <span style={{ display:'flex', alignItems:'center', gap:6 }}>{Search && <Search size={13}/>} Search Jobs</span>
-              }
-            </button>
-          ) : (
-            hasFilters
-              ? <button className="btn btn-ghost" style={{ height:38, paddingLeft:12, paddingRight:12 }} onClick={clearFilters}>Clear</button>
-              : <div />
-          )}
+          {/* Work Mode Toggle */}
+          <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
+            <span style={{ fontSize:10, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.06em' }}>Work Mode</span>
+            <label style={{
+              display:'flex', alignItems:'center', gap:5, cursor:'pointer', fontSize:12,
+              color: remoteOnly ? '#34D399' : 'var(--text-2)', whiteSpace:'nowrap',
+              padding:'0 12px', height:38,
+              background: remoteOnly ? 'rgba(52,211,153,0.12)' : 'var(--surface-2)',
+              border: '1px solid ' + (remoteOnly ? 'rgba(52,211,153,0.5)' : 'var(--border)'),
+              borderRadius:8, transition:'all 0.15s', fontWeight:600,
+            }}>
+              <input type="checkbox" checked={remoteOnly} onChange={e => setRemoteOnly(e.target.checked)}
+                style={{ accentColor:'#34D399', width:13, height:13, margin:0 }}/>
+              <span>🌐 Remote Only</span>
+            </label>
+          </div>
+
+          {/* Search Button */}
+          <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
+            <span style={{ fontSize:10, fontWeight:700, color:'transparent', textTransform:'uppercase', letterSpacing:'0.06em', pointerEvents:'none', userSelect:'none' }}>Search</span>
+            {searchMode === 'live' ? (
+              <button className="btn btn-primary" onClick={fetchLiveJobs} disabled={loadingLive}
+                style={{ height:38, paddingLeft:16, paddingRight:16, fontSize:13, gap:6, minWidth:120, whiteSpace:'nowrap' }}>
+                {loadingLive
+                  ? <span style={{ display:'flex', alignItems:'center', gap:6 }}><Spinner size={12}/> Searching...</span>
+                  : <span style={{ display:'flex', alignItems:'center', gap:6 }}>{Search && <Search size={13}/>} Search Jobs</span>
+                }
+              </button>
+            ) : (
+              hasFilters
+                ? <button className="btn btn-ghost" style={{ height:38, paddingLeft:12, paddingRight:12 }} onClick={clearFilters}>Clear</button>
+                : <div style={{ height:38 }} />
+            )}
+          </div>
         </div>
 
-        <div style={{ height:1, background:'var(--border)', margin:'0 20px' }}/>
+        {/* Row 2: Filters - wraps, has separate background and mini labels */}
+        <div style={{ padding:'8px 20px 12px', display:'flex', gap:10, alignItems:'flex-end', flexWrap:'wrap', background:'var(--surface-2)', borderTop:'1px solid var(--border)' }}>
 
-        {/* Row 2: Filters - wraps so all are always visible */}
-        <div style={{ padding:'8px 20px 10px', display:'flex', gap:6, alignItems:'center', flexWrap:'wrap' }}>
-
-          <select className="field-input" style={{ fontSize:12, height:30, minWidth:96, padding:'0 10px' }}
-            value={jobType} onChange={e => setJobType(e.target.value)}>
-            <option value="All">All Types</option>
-            {JOB_TYPES.slice(1).map(t => <option key={t}>{t}</option>)}
-          </select>
-
-          <select className="field-input" style={{ fontSize:12, height:30, minWidth:86, padding:'0 10px' }}
-            value={experience} onChange={e => setExperience(e.target.value)}>
-            <option value="All">All Levels</option>
-            <option value="Entry Level (0-2 yrs)">Entry</option>
-            <option value="Mid Level (3-5 yrs)">Mid</option>
-            <option value="Senior (6-10 yrs)">Senior</option>
-            <option value="Lead/Principal (10+ yrs)">Lead</option>
-          </select>
-
-          <select className="field-input" style={{ fontSize:12, height:30, minWidth:78, padding:'0 10px' }}
-            value={datePosted} onChange={e => setDatePosted(e.target.value)}>
-            {DATE_RANGES.map(t => <option key={t}>{t}</option>)}
-          </select>
-
-          <div style={{ width:1, height:20, background:'var(--border)', flexShrink:0, margin:'0 1px' }}/>
-
-          <select className="field-input" style={{ fontSize:12, height:30, minWidth:68, padding:'0 10px' }}
-            value={currency} onChange={e => setCurrency(e.target.value)}>
-            <option value="USD">$ USD</option>
-            <option value="INR">₹ INR</option>
-          </select>
-
-          <div style={{ display:'flex', alignItems:'center', gap:4 }}>
-            <div style={{ position:'relative' }}>
-              <span style={{ position:'absolute', left:6, top:'50%', transform:'translateY(-50%)', fontSize:11, color:'var(--text-3)', pointerEvents:'none', fontWeight:700 }}>
-                {currency === 'INR' ? '₹' : '$'}
-              </span>
-              <input className="field-input mono" type="number"
-                style={{ padding:'0 8px 0 15px', height:30, width:76, fontSize:12 }}
-                placeholder="Min" value={salaryMin} onChange={e => setSalaryMin(e.target.value)}/>
-            </div>
-            <span style={{ color:'var(--text-3)', fontSize:14, lineHeight:1 }}>-</span>
-            <div style={{ position:'relative' }}>
-              <span style={{ position:'absolute', left:6, top:'50%', transform:'translateY(-50%)', fontSize:11, color:'var(--text-3)', pointerEvents:'none', fontWeight:700 }}>
-                {currency === 'INR' ? '₹' : '$'}
-              </span>
-              <input className="field-input mono" type="number"
-                style={{ padding:'0 8px 0 15px', height:30, width:76, fontSize:12 }}
-                placeholder="Max" value={salaryMax} onChange={e => setSalaryMax(e.target.value)}/>
-            </div>
-            <span style={{ fontSize:10, color:'var(--text-3)' }}>{currency === 'INR' ? 'L' : 'K'}</span>
+          {/* Filter: Job Type */}
+          <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+            <span style={{ fontSize:9, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.05em' }}>Job Type</span>
+            <select className="field-input" style={{ fontSize:12, height:30, minWidth:102, padding:'0 10px' }}
+              value={jobType} onChange={e => setJobType(e.target.value)}>
+              <option value="All">All Types</option>
+              {JOB_TYPES.slice(1).map(t => <option key={t}>{t}</option>)}
+            </select>
           </div>
 
-          <div style={{ width:1, height:20, background:'var(--border)', flexShrink:0, margin:'0 1px' }}/>
+          {/* Filter: Experience */}
+          <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+            <span style={{ fontSize:9, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.05em' }}>Experience</span>
+            <select className="field-input" style={{ fontSize:12, height:30, minWidth:92, padding:'0 10px' }}
+              value={experience} onChange={e => setExperience(e.target.value)}>
+              <option value="All">All Levels</option>
+              <option value="Entry Level (0-2 yrs)">Entry</option>
+              <option value="Mid Level (3-5 yrs)">Mid</option>
+              <option value="Senior (6-10 yrs)">Senior</option>
+              <option value="Lead/Principal (10+ yrs)">Lead</option>
+            </select>
+          </div>
 
-          {searchMode === 'live' && (
-            <div style={{ position:'relative' }}>
-              <button type="button" className="field-input"
-                style={{ height:30, fontSize:12, display:'flex', alignItems:'center', gap:5, cursor:'pointer', minWidth:108, padding:'0 8px' }}
-                onClick={() => setPortalDropdownOpen(!portalDropdownOpen)}>
-                <span>📡</span>
-                <span style={{ whiteSpace:'nowrap' }}>
-                  {selectedPortals.length === ALL_PORTALS.length ? 'All Portals' : selectedPortals.length + ' Portals'}
+          {/* Filter: Date Posted */}
+          <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+            <span style={{ fontSize:9, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.05em' }}>Age of Listing</span>
+            <select className="field-input" style={{ fontSize:12, height:30, minWidth:92, padding:'0 10px' }}
+              value={datePosted} onChange={e => setDatePosted(e.target.value)}>
+              {DATE_RANGES.map(t => <option key={t}>{t}</option>)}
+            </select>
+          </div>
+
+          {/* Visual Separator */}
+          <div style={{ width:1, height:34, background:'var(--border)', flexShrink:0 }}/>
+
+          {/* Filter: Currency */}
+          <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+            <span style={{ fontSize:9, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.05em' }}>Currency</span>
+            <select className="field-input" style={{ fontSize:12, height:30, minWidth:72, padding:'0 10px' }}
+              value={currency} onChange={e => setCurrency(e.target.value)}>
+              <option value="USD">$ USD</option>
+              <option value="INR">₹ INR</option>
+            </select>
+          </div>
+
+          {/* Filter: Salary Range */}
+          <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+            <span style={{ fontSize:9, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.05em' }}>Est. Salary ({currency === 'INR' ? 'Lakhs/yr' : 'K/yr'})</span>
+            <div style={{ display:'flex', alignItems:'center', gap:4 }}>
+              <div style={{ position:'relative' }}>
+                <span style={{ position:'absolute', left:6, top:'50%', transform:'translateY(-50%)', fontSize:11, color:'var(--text-3)', pointerEvents:'none', fontWeight:700 }}>
+                  {currency === 'INR' ? '₹' : '$'}
                 </span>
-                {ChevronDown && <ChevronDown size={10} style={{ marginLeft:'auto', color:'var(--text-3)' }}/>}
-              </button>
-              {portalDropdownOpen && (
-                <React.Fragment>
-                  <div style={{ position:'fixed', inset:0, zIndex:29 }} onClick={() => setPortalDropdownOpen(false)}/>
-                  <div className="dropdown-menu" style={{ left:0, top:'calc(100% + 4px)', zIndex:30, minWidth:165, padding:4 }}>
-                    <div className="dropdown-item"
-                      style={{ fontWeight:700, borderBottom:'1px solid var(--border)', paddingBottom:6, marginBottom:3, display:'flex', alignItems:'center', gap:7 }}
-                      onClick={() => setSelectedPortals(selectedPortals.length === ALL_PORTALS.length ? [] : ALL_PORTALS.slice())}>
-                      <input type="checkbox" checked={selectedPortals.length === ALL_PORTALS.length} readOnly style={{ cursor:'pointer' }}/>
-                      <span>All Portals</span>
-                    </div>
-                    {ALL_PORTALS.map(function(p) { return (
-                      <div key={p} className="dropdown-item" style={{ display:'flex', alignItems:'center', gap:7 }}
-                        onClick={() => setSelectedPortals(selectedPortals.includes(p) ? selectedPortals.filter(x => x !== p) : selectedPortals.concat([p]))}>
-                        <input type="checkbox" checked={selectedPortals.includes(p)} readOnly style={{ cursor:'pointer' }}/>
-                        <span className={'portal-badge ' + getPortalBadgeClass(p)}>{p}</span>
+                <input className="field-input mono" type="number"
+                  style={{ padding:'0 8px 0 15px', height:30, width:76, fontSize:12 }}
+                  placeholder="Min" value={salaryMin} onChange={e => setSalaryMin(e.target.value)}/>
+              </div>
+              <span style={{ color:'var(--text-3)', fontSize:14, lineHeight:1 }}>-</span>
+              <div style={{ position:'relative' }}>
+                <span style={{ position:'absolute', left:6, top:'50%', transform:'translateY(-50%)', fontSize:11, color:'var(--text-3)', pointerEvents:'none', fontWeight:700 }}>
+                  {currency === 'INR' ? '₹' : '$'}
+                </span>
+                <input className="field-input mono" type="number"
+                  style={{ padding:'0 8px 0 15px', height:30, width:76, fontSize:12 }}
+                  placeholder="Max" value={salaryMax} onChange={e => setSalaryMax(e.target.value)}/>
+              </div>
+            </div>
+          </div>
+
+          {/* Visual Separator */}
+          <div style={{ width:1, height:34, background:'var(--border)', flexShrink:0 }}/>
+
+          {/* Filter: Portals */}
+          {searchMode === 'live' && (
+            <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+              <span style={{ fontSize:9, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.05em' }}>Search Portals</span>
+              <div style={{ position:'relative' }}>
+                <button type="button" className="field-input"
+                  style={{ height:30, fontSize:12, display:'flex', alignItems:'center', gap:5, cursor:'pointer', minWidth:110, padding:'0 8px' }}
+                  onClick={() => setPortalDropdownOpen(!portalDropdownOpen)}>
+                  <span>📡</span>
+                  <span style={{ whiteSpace:'nowrap' }}>
+                    {selectedPortals.length === ALL_PORTALS.length ? 'All Portals' : selectedPortals.length + ' Portals'}
+                  </span>
+                  {ChevronDown && <ChevronDown size={10} style={{ marginLeft:'auto', color:'var(--text-3)' }}/>}
+                </button>
+                {portalDropdownOpen && (
+                  <React.Fragment>
+                    <div style={{ position:'fixed', inset:0, zIndex:29 }} onClick={() => setPortalDropdownOpen(false)}/>
+                    <div className="dropdown-menu" style={{ left:0, top:'calc(100% + 4px)', zIndex:30, minWidth:165, padding:4 }}>
+                      <div className="dropdown-item"
+                        style={{ fontWeight:700, borderBottom:'1px solid var(--border)', paddingBottom:6, marginBottom:3, display:'flex', alignItems:'center', gap:7 }}
+                        onClick={() => setSelectedPortals(selectedPortals.length === ALL_PORTALS.length ? [] : ALL_PORTALS.slice())}>
+                        <input type="checkbox" checked={selectedPortals.length === ALL_PORTALS.length} readOnly style={{ cursor:'pointer' }}/>
+                        <span>All Portals</span>
                       </div>
-                    ); })}
-                  </div>
-                </React.Fragment>
-              )}
+                      {ALL_PORTALS.map(function(p) { return (
+                        <div key={p} className="dropdown-item" style={{ display:'flex', alignItems:'center', gap:7 }}
+                          onClick={() => setSelectedPortals(selectedPortals.includes(p) ? selectedPortals.filter(x => x !== p) : selectedPortals.concat([p]))}>
+                          <input type="checkbox" checked={selectedPortals.includes(p)} readOnly style={{ cursor:'pointer' }}/>
+                          <span className={'portal-badge ' + getPortalBadgeClass(p)}>{p}</span>
+                        </div>
+                      ); })}
+                    </div>
+                  </React.Fragment>
+                )}
+              </div>
             </div>
           )}
 
-          <select className="field-input" style={{ fontSize:12, height:30, minWidth:118, marginLeft:'auto', padding:'0 10px' }}
-            value={sortBy} onChange={e => setSortBy(e.target.value)}>
-            <option value="relevance">Sort: Relevance</option>
-            <option value="date">Sort: Newest</option>
-            <option value="salary">Sort: Salary</option>
-          </select>
+          {/* Filter: Sort By */}
+          <div style={{ display:'flex', flexDirection:'column', gap:4, marginLeft:'auto' }}>
+            <span style={{ fontSize:9, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.05em' }}>Sort Results</span>
+            <select className="field-input" style={{ fontSize:12, height:30, minWidth:124, padding:'0 10px' }}
+              value={sortBy} onChange={e => setSortBy(e.target.value)}>
+              <option value="relevance">Sort: Relevance</option>
+              <option value="date">Sort: Newest</option>
+              <option value="salary">Sort: Salary</option>
+            </select>
+          </div>
 
           {searchMode === 'live' && hasFilters && (
             <button className="btn btn-ghost btn-sm" style={{ height:30, fontSize:11, gap:4, padding:'0 8px' }}
               onClick={saveSearch}>
-              {Star && <Star size={11}/>} Save
+              {Star && <Star size={11}/>} Save Search
             </button>
           )}
         </div>
@@ -3138,14 +3196,13 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
                         {/* Apply button with portal picker */}
                         <div style={{ position:'relative', flex:1 }}>
                           <div className="apply-btn-group">
-                            {/* Always use a reliable portal search URL - AI-generated URLs are unreliable */}
-                            <a href={buildApplyUrl(job.source||'LinkedIn', job.roleName, job.companyName, job.location, job.remote)}
+                            <a href={job.applyUrl && job.applyUrl !== '#' ? job.applyUrl : buildApplyUrl(job.source||'LinkedIn', job.roleName, job.companyName, job.location, job.remote)}
                               target="_blank" rel="noopener noreferrer"
                               className="apply-btn-main"
                               style={{ textDecoration:'none' }}
-                              title={`Search for "${job.roleName}" at ${job.companyName} on ${job.source||'LinkedIn'}`}>
+                              title={job.applyUrl && job.applyUrl !== '#' ? `Apply directly to ${job.companyName}` : `Search for "${job.roleName}" at ${job.companyName} on ${job.source||'LinkedIn'}`}>
                               {ExternalLink && <ExternalLink size={13}/>}
-                              Apply on {job.source||'LinkedIn'}
+                              {job.applyUrl && job.applyUrl.includes('http') && !job.applyUrl.includes('search') ? 'Apply Directly' : `Apply on ${job.source||'LinkedIn'}`}
                             </a>
                             <button className="apply-btn-dropdown" title="Apply on other portals"
                               onClick={e=>{ e.stopPropagation(); setApplyPortalOpen(applyPortalOpen===job.id?null:job.id); }}>
