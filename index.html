@@ -337,8 +337,8 @@
 
 
   /* ━━ JOB SEARCH ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-  .job-search-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:22px; transition:all 0.18s; position:relative; overflow:hidden; }
-  .job-search-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--accent),var(--violet)); opacity:0; transition:opacity 0.18s; }
+  .job-search-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:22px; transition:all 0.18s; position:relative; overflow:visible; }
+  .job-search-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--accent),var(--violet)); opacity:0; transition:opacity 0.18s; border-top-left-radius:16px; border-top-right-radius:16px; }
   .job-search-card:hover { border-color:var(--border-2); box-shadow:0 8px 32px rgba(0,0,0,0.28); transform:translateY(-3px); }
   .job-search-card:hover::before { opacity:1; }
   .job-search-card.hot-card { border-color:rgba(249,115,22,0.35); }
@@ -2303,20 +2303,16 @@ function getGlassdoorDomain(locationStr) {
   return 'www.glassdoor.com';
 }
 
-// Verify if an apply URL returned by AI is direct and not a generic workday/lever placeholder
+// Verify if an apply URL returned by AI is direct and not a generic homepage placeholder
 function isReliableUrl(url) {
   if (!url || url === '#' || url === 'placeholder' || typeof url !== 'string') return false;
   const lower = url.toLowerCase();
   
-  // Exclude common placeholder workday/greenhouse/lever strings that are usually hallucinated guesses
-  if (lower.includes('workday') || lower.includes('greenhouse.io') || lower.includes('lever.co') || lower.includes('myworkdayjobs')) {
-    // If it contains the exact company name but is a generic template, it's fake.
-    // If it contains a specific ID or hash, it's more likely to be real, but workday is very frequently hallucinated.
-    return false;
-  }
-  
-  // Generic company homepages (e.g. stripe.com or google.com/careers) are not direct apply URLs
-  if (lower.split('/').length <= 4 && !lower.includes('job') && !lower.includes('careers/') && !lower.includes('careers?')) {
+  // Generic company homepages (e.g. stripe.com or workday.com) are not direct apply URLs, they are placeholders.
+  // Real direct apply URLs have sub-paths or query parameters (e.g. boards.greenhouse.io/stripe/jobs/123).
+  const cleanUrl = url.replace(/^https?:\/\//i, '');
+  const pathParts = cleanUrl.split('/');
+  if (pathParts.length <= 1 || (pathParts.length === 2 && pathParts[1] === '')) {
     return false;
   }
   
@@ -2373,8 +2369,10 @@ function buildApplyUrl(portal, roleName, companyName, location, remote) {
       const domain = getGlassdoorDomain(locStr);
       return `https://${domain}/Job/jobs.htm?sc.keyword=${combined}${loc ? '&locT=C&locKeyword='+loc : ''}`;
     }
-    default:
-      return `https://www.linkedin.com/jobs/search/?keywords=${combined}&location=${loc}`;
+    default: {
+      const q = encodeURIComponent(`${companyName || ''} careers ${roleName || ''} ${location || ''}`.trim() + ' job');
+      return `https://www.google.com/search?q=${q}`;
+    }
   }
 }
 
@@ -3156,7 +3154,8 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
                   const alreadyTracked = applications.some(a => a.roleName === job.roleName && a.companyName === job.companyName);
                   const portalClass = getPortalBadgeClass(job.source);
                   return (
-                    <div key={job.id} className={`job-search-card${job.hot?' hot-card':''}`}>
+                    <div key={job.id} className={`job-search-card${job.hot?' hot-card':''}`}
+                      style={{ zIndex: applyPortalOpen === job.id ? 15 : 1 }}>
                       {/* Card header */}
                       <div style={{ display:'flex', alignItems:'flex-start', gap:12, marginBottom:12 }}>
                         <CompanyLogo name={job.companyName} size={44}/>
