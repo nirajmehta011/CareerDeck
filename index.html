@@ -2821,7 +2821,7 @@ Skills: ${data.skills.flatMap(s=>s.items||[]).join(', ')||'Not provided'}`;
   const removeEdu = (id) => save({ ...data, education:data.education.filter(e=>e.id!==id) });
   const upEdu = (id, f, v) => save({ ...data, education:data.education.map(e=>e.id===id?{...e,[f]:v}:e) });
   const upSkill = (id, f, v) => save({ ...data, skills:data.skills.map(s=>s.id===id?{...s,[f]:v}:s) });
-  const upSkillItems = (id, v) => save({ ...data, skills:data.skills.map(s=>s.id===id?{...s,items:v.split(',').map(x=>x.trim()).filter(Boolean)}:s) });
+  const upSkillItems = (id, v) => save({ ...data, skills:data.skills.map(s=>s.id===id?{...s,rawText:v,items:v.split(',').map(x=>x.trim()).filter(Boolean)}:s) });
   const addProj = () => save({ ...data, projects:[...data.projects, { id:uid(), name:'', url:'', description:'', tech:'' }] });
   const removeProj = (id) => save({ ...data, projects:data.projects.filter(p=>p.id!==id) });
   const upProj = (id, f, v) => save({ ...data, projects:data.projects.map(p=>p.id===id?{...p,[f]:v}:p) });
@@ -2970,7 +2970,7 @@ Skills: ${data.skills.flatMap(s=>s.items||[]).join(', ')||'Not provided'}`;
               <div key={skill.id} className="exp-card" style={{ marginBottom:10 }}>
                 <div className="skills-grid">
                   <div className="field-group"><label className="field-label">Category</label><input className="field-input" value={skill.category} onChange={e=>upSkill(skill.id,'category',e.target.value)} placeholder="Technical Skills"/></div>
-                  <div className="field-group"><label className="field-label">Skills (comma-separated)</label><input className="field-input" value={(skill.items||[]).join(', ')} onChange={e=>upSkillItems(skill.id,e.target.value)} placeholder="React, TypeScript, Node.js, PostgreSQL…"/></div>
+                  <div className="field-group"><label className="field-label">Skills (comma-separated)</label><input className="field-input" value={skill.rawText !== undefined ? skill.rawText : (skill.items||[]).join(', ')} onChange={e=>upSkillItems(skill.id,e.target.value)} placeholder="React, TypeScript, Node.js, PostgreSQL…"/></div>
                 </div>
               </div>
             ))}
