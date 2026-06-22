@@ -2274,20 +2274,41 @@ function buildPortalSearchUrl(portal, keyword, location, remote) {
       return `https://www.linkedin.com/jobs/search/?keywords=${kw}&location=${loc}${remote ? '&f_WT=2' : ''}`;
     case 'Indeed':
       return `https://www.indeed.com/jobs?q=${kw}&l=${loc}${remote ? '&remotejob=032b3046-06a3-4876-8dfd-474eb5e7ed11' : ''}`;
-    case 'Naukri.com':
-      return `https://www.naukri.com/${kw.replace(/%20/g,'-')}-jobs${loc ? `-in-${loc.replace(/%20/g,'-')}` : ''}?jobAge=1`;
+    case 'Naukri.com': {
+      const kwSlug = (keyword||'').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      const locSlug = (location||'').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      return `https://www.naukri.com/${kwSlug || 'jobs'}${locSlug ? `-jobs-in-${locSlug}` : '-jobs'}`;
+    }
     case 'Glassdoor':
-      return `https://www.glassdoor.com/Job/jobs.htm?sc.keyword=${kw}&locT=C&locId=1147401${remote ? '&remoteWorkType=1' : ''}`;
+      return `https://www.glassdoor.com/Job/jobs.htm?sc.keyword=${kw}${loc ? '&locT=C&locKeyword='+loc : ''}${remote ? '&remoteWorkType=1' : ''}`;
     case 'Monster':
       return `https://www.monster.com/jobs/search?q=${kw}&where=${loc}`;
     default:
-      return `https://www.google.com/search?q=${kw}+jobs+${loc}`;
+      return `https://www.google.com/search?q=${encodeURIComponent(((keyword||'')+(location?' '+location:'')).trim()+' jobs')}+site:linkedin.com+OR+site:indeed.com`;
   }
 }
 
-function getPortalBadgeClass(portal) {
-  const m = { 'LinkedIn':'linkedin', 'Indeed':'indeed', 'Naukri.com':'naukri', 'Glassdoor':'glassdoor' };
-  return m[portal] || 'default';
+// Build a guaranteed-working apply URL using job title + company name for precise search
+function buildApplyUrl(portal, roleName, companyName, location, remote) {
+  const compEnc = encodeURIComponent(companyName || '');
+  // Combine role + company for precise search — this always works
+  const combined = encodeURIComponent(`${roleName||''} ${companyName||''}`.trim());
+  const loc = encodeURIComponent(location || (remote ? 'Remote' : ''));
+  switch (portal) {
+    case 'LinkedIn':
+      return `https://www.linkedin.com/jobs/search/?keywords=${combined}&location=${loc}${remote ? '&f_WT=2' : ''}`;
+    case 'Indeed':
+      return `https://www.indeed.com/jobs?q=${combined}&l=${loc}`;
+    case 'Naukri.com': {
+      const kwSlug = (roleName||'').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      const locSlug = (location||'').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      return `https://www.naukri.com/${kwSlug || 'jobs'}${locSlug ? `-jobs-in-${locSlug}` : '-jobs'}?company=${compEnc}`;
+    }
+    case 'Glassdoor':
+      return `https://www.glassdoor.com/Job/jobs.htm?sc.keyword=${combined}${loc ? '&locT=C&locKeyword='+loc : ''}`;
+    default:
+      return `https://www.linkedin.com/jobs/search/?keywords=${combined}&location=${loc}`;
+  }
 }
 
 function formatSalary(min, max, targetCurrency) {
@@ -2653,19 +2674,17 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
   // ── Portal apply picker ──
   const ApplyPortalPicker = ({ job }) => (
     <div className="portal-picker-dropdown">
-      <div style={{ fontSize:10, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.07em', padding:'4px 12px 8px' }}>Apply on Portal</div>
+      <div style={{ fontSize:10, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.07em', padding:'4px 12px 8px' }}>Find on Portal</div>
       {ALL_PORTALS.map(p => (
-        <a key={p} href={buildPortalSearchUrl(p, job.roleName, job.location, job.remote)} target="_blank" rel="noopener noreferrer" className="portal-picker-item" onClick={() => setApplyPortalOpen(null)}>
+        <a key={p} href={buildApplyUrl(p, job.roleName, job.companyName, job.location, job.remote)}
+          target="_blank" rel="noopener noreferrer" className="portal-picker-item"
+          onClick={() => setApplyPortalOpen(null)}
+          title={`Search "${job.roleName}" at ${job.companyName} on ${p}`}>
           <span className={`portal-badge ${getPortalBadgeClass(p)}`}>{p}</span>
-          <span style={{ fontSize:11 }}>Search on {p}</span>
+          <span style={{ fontSize:11 }}>Find on {p}</span>
           {ExternalLink && <ExternalLink size={10} style={{ marginLeft:'auto', color:'var(--text-3)' }}/>}
         </a>
       ))}
-      {job.applyUrl && job.applyUrl !== '#' && (
-        <a href={job.applyUrl} target="_blank" rel="noopener noreferrer" className="portal-picker-item" style={{ borderTop:'1px solid var(--border)', marginTop:4, paddingTop:10 }} onClick={() => setApplyPortalOpen(null)}>
-          <span style={{ fontSize:11, fontWeight:700, color:'var(--accent)' }}>Direct Link →</span>
-        </a>
-      )}
     </div>
   );
 
@@ -2734,11 +2753,12 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
       </div>
 
       {/* ── Search Bar ── */}
-      <div style={{ padding:'14px 24px 0', borderBottom:'1px solid var(--border)', flexShrink:0, background:'var(--surface)' }}>
-        {/* Row 1: Main search fields */}
-        <div style={{ display:'flex', gap:10, flexWrap:'wrap', alignItems:'center', marginBottom:10 }}>
-          {/* Role/Keyword */}
-          <div style={{ position:'relative', flex:3, minWidth:200 }}>
+      <div style={{ borderBottom:'1px solid var(--border)', flexShrink:0, background:'var(--surface)' }}>
+
+        {/* Row 1: Primary search fields */}
+        <div style={{ padding:'14px 24px 10px', display:'flex', gap:10, alignItems:'center', flexWrap:'wrap' }}>
+          {/* Role/Keyword – widest */}
+          <div style={{ position:'relative', flex:'3 1 220px', minWidth:0 }}>
             <div style={{ position:'absolute', left:11, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none' }}>{Search && <Search size={14}/>}</div>
             <input id="js-keyword" className="field-input" style={{ paddingLeft:34, fontSize:13, height:40 }}
               placeholder="Job title, skill, or keyword…"
@@ -2748,9 +2768,9 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
             />
           </div>
           {/* Company */}
-          <div style={{ position:'relative', flex:2, minWidth:160 }}>
+          <div style={{ position:'relative', flex:'2 1 160px', minWidth:0 }}>
             <div style={{ position:'absolute', left:11, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none', fontSize:12 }}>🏢</div>
-            <input id="js-company" className="field-input" style={{ paddingLeft:34, fontSize:13, height:40 }}
+            <input id="js-company" className="field-input" style={{ paddingLeft:32, fontSize:13, height:40 }}
               placeholder="Company name…"
               value={company} onChange={e => setCompany(e.target.value)}
               onKeyDown={e => e.key==='Enter' && searchMode==='live' && fetchLiveJobs()}
@@ -2758,7 +2778,7 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
             />
           </div>
           {/* Location */}
-          <div style={{ position:'relative', flex:2, minWidth:160 }}>
+          <div style={{ position:'relative', flex:'2 1 160px', minWidth:0 }}>
             <div style={{ position:'absolute', left:11, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none' }}>{MapPin && <MapPin size={14}/>}</div>
             <input id="js-location" className="field-input" style={{ paddingLeft:34, fontSize:13, height:40 }}
               placeholder="City, country, or Remote…"
@@ -2768,66 +2788,98 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
             />
           </div>
           {/* Remote toggle */}
-          <label style={{ display:'flex', alignItems:'center', gap:6, cursor:'pointer', fontSize:12, color:'var(--text-2)', whiteSpace:'nowrap', flexShrink:0,
-            padding:'0 12px', height:40, background:remoteOnly?'rgba(52,211,153,0.1)':'var(--surface-2)', border:`1px solid ${remoteOnly?'rgba(52,211,153,0.4)':'var(--border)'}`,
-            borderRadius:8, transition:'all 0.15s', fontWeight:600 }}>
-            <input type="checkbox" checked={remoteOnly} onChange={e => setRemoteOnly(e.target.checked)} style={{ accentColor:'var(--success)' }}/>
-            🌍 Remote
+          <label style={{
+            display:'flex', alignItems:'center', gap:6, cursor:'pointer', fontSize:12,
+            color: remoteOnly ? 'var(--success)' : 'var(--text-2)', whiteSpace:'nowrap', flexShrink:0,
+            padding:'0 14px', height:40,
+            background: remoteOnly ? 'rgba(52,211,153,0.1)' : 'var(--surface-2)',
+            border: `1px solid ${remoteOnly ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`,
+            borderRadius:8, transition:'all 0.15s', fontWeight:600,
+          }}>
+            <input type="checkbox" checked={remoteOnly} onChange={e => setRemoteOnly(e.target.checked)} style={{ accentColor:'var(--success)', width:14, height:14 }}/>
+            <span>🌍 Remote</span>
           </label>
           {/* Search Button */}
           {searchMode === 'live' ? (
             <button className="btn btn-primary" onClick={fetchLiveJobs} disabled={loadingLive}
-              style={{ height:40, paddingInline:20, fontSize:13, background:loadingLive?'var(--surface-3)':'var(--accent)', minWidth:130 }}>
+              style={{ height:40, paddingInline:22, fontSize:13, flexShrink:0, minWidth:130, gap:7 }}>
               {loadingLive ? <><Spinner size={13}/> Searching…</> : <>{Search && <Search size={13}/>} Search Jobs</>}
             </button>
           ) : (
             hasFilters && (
-              <button className="btn btn-ghost btn-sm" style={{ height:40 }} onClick={clearFilters}>
-                {X && <X size={12}/>} Clear
+              <button className="btn btn-ghost" style={{ height:40, flexShrink:0 }} onClick={clearFilters}>
+                {X && <X size={12}/>} Clear filters
               </button>
             )
           )}
         </div>
 
-        {/* Row 2: Quick filters + advanced toggle */}
-        <div style={{ display:'flex', gap:8, flexWrap:'wrap', alignItems:'center', paddingBottom:12 }}>
-          <select className="field-input" style={{ fontSize:12, height:32, width:'auto', minWidth:110 }} value={jobType} onChange={e => setJobType(e.target.value)}>
+        {/* Divider */}
+        <div style={{ height:'1px', background:'var(--border)', margin:'0 24px' }}/>
+
+        {/* Row 2: Secondary filters – compact chip row */}
+        <div style={{ padding:'8px 24px 10px', display:'flex', gap:8, alignItems:'center', flexWrap:'wrap', overflowX:'auto' }}>
+          {/* Job type */}
+          <select className="field-input" style={{ fontSize:12, height:32, width:'auto', minWidth:105, flexShrink:0 }} value={jobType} onChange={e => setJobType(e.target.value)}>
             <option value="All">All Types</option>
             {JOB_TYPES.slice(1).map(t => <option key={t}>{t}</option>)}
           </select>
-          <select className="field-input" style={{ fontSize:12, height:32, width:'auto', minWidth:130 }} value={experience} onChange={e => setExperience(e.target.value)}>
+
+          {/* Experience */}
+          <select className="field-input" style={{ fontSize:12, height:32, width:'auto', minWidth:100, flexShrink:0 }} value={experience} onChange={e => setExperience(e.target.value)}>
             <option value="All">All Levels</option>
-            {EXP_LEVELS.slice(1).map(t => <option key={t}>{t}</option>)}
+            <option value="Entry Level (0-2 yrs)">Entry (0-2 yrs)</option>
+            <option value="Mid Level (3-5 yrs)">Mid (3-5 yrs)</option>
+            <option value="Senior (6-10 yrs)">Senior (6-10 yrs)</option>
+            <option value="Lead/Principal (10+ yrs)">Lead (10+ yrs)</option>
           </select>
-          <select className="field-input" style={{ fontSize:12, height:32, width:'auto', minWidth:110 }} value={datePosted} onChange={e => setDatePosted(e.target.value)}>
+
+          {/* Date Posted */}
+          <select className="field-input" style={{ fontSize:12, height:32, width:'auto', minWidth:100, flexShrink:0 }} value={datePosted} onChange={e => setDatePosted(e.target.value)}>
             {DATE_RANGES.map(t => <option key={t}>{t}</option>)}
           </select>
+
+          {/* Vertical divider */}
+          <div style={{ width:1, height:22, background:'var(--border)', flexShrink:0 }}/>
+
           {/* Currency */}
-          <select className="field-input" style={{ fontSize:12, height:32, width:90 }} value={currency} onChange={e => setCurrency(e.target.value)}>
+          <select className="field-input" style={{ fontSize:12, height:32, width:80, flexShrink:0 }} value={currency} onChange={e => setCurrency(e.target.value)}>
             <option value="USD">$ USD</option>
             <option value="INR">₹ INR</option>
           </select>
-          {/* Salary Min */}
-          <div style={{ position:'relative' }}>
-            <span style={{ position:'absolute', left:9, top:'50%', transform:'translateY(-50%)', fontSize:11, fontWeight:700, color:'var(--text-3)', pointerEvents:'none' }}>{currency==='INR'?'₹':'$'}</span>
-            <input className="field-input mono" style={{ paddingLeft:20, fontSize:12, height:32, width:110 }} type="number"
-              placeholder={currency==='INR'?'Min (Lakh)':'Min (K)'} value={salaryMin} onChange={e=>setSalaryMin(e.target.value)}/>
+
+          {/* Salary range – compact */}
+          <div style={{ display:'flex', alignItems:'center', gap:4, flexShrink:0 }}>
+            <div style={{ position:'relative' }}>
+              <span style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', fontSize:11, fontWeight:700, color:'var(--text-3)', pointerEvents:'none', lineHeight:1 }}>
+                {currency==='INR'?'₹':'$'}
+              </span>
+              <input className="field-input mono" style={{ paddingLeft:18, fontSize:12, height:32, width:96 }} type="number"
+                placeholder="Min" value={salaryMin} onChange={e=>setSalaryMin(e.target.value)}/>
+            </div>
+            <span style={{ color:'var(--text-3)', fontSize:12, flexShrink:0 }}>–</span>
+            <div style={{ position:'relative' }}>
+              <span style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', fontSize:11, fontWeight:700, color:'var(--text-3)', pointerEvents:'none', lineHeight:1 }}>
+                {currency==='INR'?'₹':'$'}
+              </span>
+              <input className="field-input mono" style={{ paddingLeft:18, fontSize:12, height:32, width:96 }} type="number"
+                placeholder="Max" value={salaryMax} onChange={e=>setSalaryMax(e.target.value)}/>
+            </div>
+            <span style={{ fontSize:10, color:'var(--text-3)', flexShrink:0 }}>{currency==='INR'?'Lakhs':'K'}</span>
           </div>
-          <span style={{ color:'var(--text-3)', fontSize:12 }}>–</span>
-          <div style={{ position:'relative' }}>
-            <span style={{ position:'absolute', left:9, top:'50%', transform:'translateY(-50%)', fontSize:11, fontWeight:700, color:'var(--text-3)', pointerEvents:'none' }}>{currency==='INR'?'₹':'$'}</span>
-            <input className="field-input mono" style={{ paddingLeft:20, fontSize:12, height:32, width:110 }} type="number"
-              placeholder={currency==='INR'?'Max (Lakh)':'Max (K)'} value={salaryMax} onChange={e=>setSalaryMax(e.target.value)}/>
-          </div>
+
+          {/* Vertical divider */}
+          <div style={{ width:1, height:22, background:'var(--border)', flexShrink:0 }}/>
 
           {/* Portal selector (live mode only) */}
           {searchMode === 'live' && (
-            <div style={{ position:'relative' }}>
+            <div style={{ position:'relative', flexShrink:0 }}>
               <button type="button" className="field-input"
-                style={{ height:32, fontSize:12, display:'flex', alignItems:'center', gap:5, cursor:'pointer', background:'var(--surface-2)', textAlign:'left', minWidth:130 }}
+                style={{ height:32, fontSize:12, display:'flex', alignItems:'center', gap:6, cursor:'pointer', background:'var(--surface-2)', textAlign:'left', minWidth:120, flexShrink:0 }}
                 onClick={() => setPortalDropdownOpen(!portalDropdownOpen)}>
-                <span>📡 {selectedPortals.length === ALL_PORTALS.length ? 'All Portals' : `${selectedPortals.length} Portal${selectedPortals.length!==1?'s':''}`}</span>
-                {ChevronDown && <ChevronDown size={12} style={{ marginLeft:'auto', color:'var(--text-3)' }}/>}
+                <span style={{ fontSize:12 }}>📡</span>
+                <span style={{ whiteSpace:'nowrap' }}>{selectedPortals.length === ALL_PORTALS.length ? 'All Portals' : `${selectedPortals.length} Portal${selectedPortals.length!==1?'s':''}`}</span>
+                {ChevronDown && <ChevronDown size={11} style={{ marginLeft:'auto', color:'var(--text-3)', flexShrink:0 }}/>}
               </button>
               {portalDropdownOpen && (
                 <>
@@ -2851,16 +2903,18 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
             </div>
           )}
 
-          {/* Sort */}
-          <select className="field-input" style={{ fontSize:12, height:32, width:'auto', minWidth:120, marginLeft:'auto' }} value={sortBy} onChange={e=>setSortBy(e.target.value)}>
-            <option value="relevance">Sort: Relevance</option>
-            <option value="date">Sort: Date</option>
-            <option value="salary">Sort: Salary</option>
-          </select>
+          {/* Sort – pushed to right */}
+          <div style={{ marginLeft:'auto', flexShrink:0 }}>
+            <select className="field-input" style={{ fontSize:12, height:32, width:'auto', minWidth:130 }} value={sortBy} onChange={e=>setSortBy(e.target.value)}>
+              <option value="relevance">Sort: Relevance</option>
+              <option value="date">Sort: Newest</option>
+              <option value="salary">Sort: Salary</option>
+            </select>
+          </div>
 
           {/* Save search */}
           {searchMode === 'live' && hasFilters && (
-            <button className="btn btn-ghost btn-sm" style={{ fontSize:11, height:32 }} onClick={saveSearch} title="Save this search">
+            <button className="btn btn-ghost btn-sm" style={{ fontSize:11, height:32, flexShrink:0, gap:5 }} onClick={saveSearch} title="Save this search">
               {Star && <Star size={12}/>} Save
             </button>
           )}
@@ -2868,11 +2922,11 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
 
         {/* Progress bar */}
         {loadingLive && (
-          <div style={{ marginBottom:0 }}>
+          <div style={{ padding:'0 0 0' }}>
             <div className="search-progress-bar">
               <div className="search-progress-fill" style={{ width:`${loadProgress}%` }}/>
             </div>
-            <div style={{ fontSize:11, color:'var(--text-3)', padding:'5px 0 8px', textAlign:'center', letterSpacing:'0.03em' }}>{searchPhase}</div>
+            <div style={{ fontSize:11, color:'var(--text-3)', padding:'5px 24px 8px', letterSpacing:'0.03em' }}>{searchPhase}</div>
           </div>
         )}
       </div>
@@ -3068,11 +3122,14 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
                         {/* Apply button with portal picker */}
                         <div style={{ position:'relative', flex:1 }}>
                           <div className="apply-btn-group">
-                            <a href={job.applyUrl||buildPortalSearchUrl('LinkedIn', job.roleName, job.location, job.remote)}
+                            {/* Always use a reliable portal search URL - AI-generated URLs are unreliable */}
+                            <a href={buildApplyUrl(job.source||'LinkedIn', job.roleName, job.companyName, job.location, job.remote)}
                               target="_blank" rel="noopener noreferrer"
                               className="apply-btn-main"
-                              style={{ textDecoration:'none' }}>
-                              {ExternalLink && <ExternalLink size={13}/>} Apply Now
+                              style={{ textDecoration:'none' }}
+                              title={`Search for "${job.roleName}" at ${job.companyName} on ${job.source||'LinkedIn'}`}>
+                              {ExternalLink && <ExternalLink size={13}/>}
+                              Apply on {job.source||'LinkedIn'}
                             </a>
                             <button className="apply-btn-dropdown" title="Apply on other portals"
                               onClick={e=>{ e.stopPropagation(); setApplyPortalOpen(applyPortalOpen===job.id?null:job.id); }}>
