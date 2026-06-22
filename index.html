@@ -2268,22 +2268,82 @@ function DashboardView() {
 // JOB SEARCH VIEW
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// Portal search URL builders
+// Country-aware domain routing helpers
+function getIndeedDomain(locationStr) {
+  const loc = (locationStr || '').toLowerCase();
+  if (loc.includes('india') || loc.includes('in') || loc.includes('mumbai') || loc.includes('bangalore') || loc.includes('bengaluru') || loc.includes('pune') || loc.includes('delhi') || loc.includes('noida') || loc.includes('gurgaon') || loc.includes('hyderabad') || loc.includes('chennai') || loc.includes('kolkata')) {
+    return 'in.indeed.com';
+  }
+  if (loc.includes('united kingdom') || loc.includes('uk') || loc.includes('london') || loc.includes('manchester') || loc.includes('birmingham')) {
+    return 'uk.indeed.com';
+  }
+  if (loc.includes('canada') || loc.includes('ca') || loc.includes('toronto') || loc.includes('vancouver') || loc.includes('montreal')) {
+    return 'ca.indeed.com';
+  }
+  if (loc.includes('singapore') || loc.includes('sg')) {
+    return 'sg.indeed.com';
+  }
+  if (loc.includes('australia') || loc.includes('au') || loc.includes('sydney') || loc.includes('melbourne') || loc.includes('brisbane')) {
+    return 'au.indeed.com';
+  }
+  if (loc.includes('germany') || loc.includes('de') || loc.includes('berlin') || loc.includes('munich') || loc.includes('frankfurt')) {
+    return 'de.indeed.com';
+  }
+  if (loc.includes('uae') || loc.includes('dubai') || loc.includes('united arab emirates') || loc.includes('abu dhabi')) {
+    return 'ae.indeed.com';
+  }
+  return 'www.indeed.com';
+}
+
+function getGlassdoorDomain(locationStr) {
+  const loc = (locationStr || '').toLowerCase();
+  if (loc.includes('india') || loc.includes('in') || loc.includes('mumbai') || loc.includes('bangalore') || loc.includes('bengaluru') || loc.includes('pune') || loc.includes('delhi') || loc.includes('noida') || loc.includes('gurgaon') || loc.includes('hyderabad') || loc.includes('chennai')) {
+    return 'www.glassdoor.co.in';
+  }
+  return 'www.glassdoor.com';
+}
+
+// Verify if an apply URL returned by AI is direct and not a generic workday/lever placeholder
+function isReliableUrl(url) {
+  if (!url || url === '#' || url === 'placeholder' || typeof url !== 'string') return false;
+  const lower = url.toLowerCase();
+  
+  // Exclude common placeholder workday/greenhouse/lever strings that are usually hallucinated guesses
+  if (lower.includes('workday') || lower.includes('greenhouse.io') || lower.includes('lever.co') || lower.includes('myworkdayjobs')) {
+    // If it contains the exact company name but is a generic template, it's fake.
+    // If it contains a specific ID or hash, it's more likely to be real, but workday is very frequently hallucinated.
+    return false;
+  }
+  
+  // Generic company homepages (e.g. stripe.com or google.com/careers) are not direct apply URLs
+  if (lower.split('/').length <= 4 && !lower.includes('job') && !lower.includes('careers/') && !lower.includes('careers?')) {
+    return false;
+  }
+  
+  return lower.startsWith('http://') || lower.startsWith('https://');
+}
+
+// Portal search URL builders (country-aware)
 function buildPortalSearchUrl(portal, keyword, location, remote) {
   const kw = encodeURIComponent(keyword || '');
-  const loc = encodeURIComponent(location || (remote ? 'Remote' : ''));
+  const locStr = (location || '').trim();
+  const loc = encodeURIComponent(locStr || (remote ? 'Remote' : ''));
   switch (portal) {
     case 'LinkedIn':
       return `https://www.linkedin.com/jobs/search/?keywords=${kw}&location=${loc}${remote ? '&f_WT=2' : ''}`;
-    case 'Indeed':
-      return `https://www.indeed.com/jobs?q=${kw}&l=${loc}${remote ? '&remotejob=032b3046-06a3-4876-8dfd-474eb5e7ed11' : ''}`;
+    case 'Indeed': {
+      const domain = getIndeedDomain(locStr);
+      return `https://${domain}/jobs?q=${kw}&l=${loc}${remote ? '&remotejob=032b3046-06a3-4876-8dfd-474eb5e7ed11' : ''}`;
+    }
     case 'Naukri.com': {
       const kwSlug = (keyword||'').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       const locSlug = (location||'').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       return `https://www.naukri.com/${kwSlug || 'jobs'}${locSlug ? `-jobs-in-${locSlug}` : '-jobs'}`;
     }
-    case 'Glassdoor':
-      return `https://www.glassdoor.com/Job/jobs.htm?sc.keyword=${kw}${loc ? '&locT=C&locKeyword='+loc : ''}${remote ? '&remoteWorkType=1' : ''}`;
+    case 'Glassdoor': {
+      const domain = getGlassdoorDomain(locStr);
+      return `https://${domain}/Job/jobs.htm?sc.keyword=${kw}${loc ? '&locT=C&locKeyword='+loc : ''}${remote ? '&remoteWorkType=1' : ''}`;
+    }
     case 'Monster':
       return `https://www.monster.com/jobs/search?q=${kw}&where=${loc}`;
     default:
@@ -2291,24 +2351,28 @@ function buildPortalSearchUrl(portal, keyword, location, remote) {
   }
 }
 
-// Build a guaranteed-working apply URL using job title + company name for precise search
+// Build a guaranteed-working apply URL using job title + company name for precise search (country-aware)
 function buildApplyUrl(portal, roleName, companyName, location, remote) {
   const compEnc = encodeURIComponent(companyName || '');
-  // Combine role + company for precise search — this always works
   const combined = encodeURIComponent(`${roleName||''} ${companyName||''}`.trim());
-  const loc = encodeURIComponent(location || (remote ? 'Remote' : ''));
+  const locStr = (location || '').trim();
+  const loc = encodeURIComponent(locStr || (remote ? 'Remote' : ''));
   switch (portal) {
     case 'LinkedIn':
       return `https://www.linkedin.com/jobs/search/?keywords=${combined}&location=${loc}${remote ? '&f_WT=2' : ''}`;
-    case 'Indeed':
-      return `https://www.indeed.com/jobs?q=${combined}&l=${loc}`;
+    case 'Indeed': {
+      const domain = getIndeedDomain(locStr);
+      return `https://${domain}/jobs?q=${combined}&l=${loc}`;
+    }
     case 'Naukri.com': {
       const kwSlug = (roleName||'').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       const locSlug = (location||'').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       return `https://www.naukri.com/${kwSlug || 'jobs'}${locSlug ? `-jobs-in-${locSlug}` : '-jobs'}?company=${compEnc}`;
     }
-    case 'Glassdoor':
-      return `https://www.glassdoor.com/Job/jobs.htm?sc.keyword=${combined}${loc ? '&locT=C&locKeyword='+loc : ''}`;
+    case 'Glassdoor': {
+      const domain = getGlassdoorDomain(locStr);
+      return `https://${domain}/Job/jobs.htm?sc.keyword=${combined}${loc ? '&locT=C&locKeyword='+loc : ''}`;
+    }
     default:
       return `https://www.linkedin.com/jobs/search/?keywords=${combined}&location=${loc}`;
   }
@@ -2683,7 +2747,7 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
   const ApplyPortalPicker = ({ job }) => (
     <div className="portal-picker-dropdown">
       <div style={{ fontSize:10, fontWeight:700, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'0.07em', padding:'4px 12px 8px' }}>Apply Options</div>
-      {job.applyUrl && job.applyUrl !== '#' && !job.applyUrl.includes('search') && (
+      {isReliableUrl(job.applyUrl) && (
         <a href={job.applyUrl} target="_blank" rel="noopener noreferrer" className="portal-picker-item" 
           style={{ borderBottom:'1px solid var(--border)', paddingBottom:8, marginBottom:6 }}
           onClick={() => setApplyPortalOpen(null)}>
@@ -3196,13 +3260,13 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
                         {/* Apply button with portal picker */}
                         <div style={{ position:'relative', flex:1 }}>
                           <div className="apply-btn-group">
-                            <a href={job.applyUrl && job.applyUrl !== '#' ? job.applyUrl : buildApplyUrl(job.source||'LinkedIn', job.roleName, job.companyName, job.location, job.remote)}
+                            <a href={isReliableUrl(job.applyUrl) ? job.applyUrl : buildApplyUrl(job.source||'LinkedIn', job.roleName, job.companyName, job.location, job.remote)}
                               target="_blank" rel="noopener noreferrer"
                               className="apply-btn-main"
                               style={{ textDecoration:'none' }}
-                              title={job.applyUrl && job.applyUrl !== '#' ? `Apply directly to ${job.companyName}` : `Search for "${job.roleName}" at ${job.companyName} on ${job.source||'LinkedIn'}`}>
+                              title={isReliableUrl(job.applyUrl) ? `Apply directly to ${job.companyName}` : `Search for "${job.roleName}" at ${job.companyName} on ${job.source||'LinkedIn'}`}>
                               {ExternalLink && <ExternalLink size={13}/>}
-                              {job.applyUrl && job.applyUrl.includes('http') && !job.applyUrl.includes('search') ? 'Apply Directly' : `Apply on ${job.source||'LinkedIn'}`}
+                              {isReliableUrl(job.applyUrl) ? 'Apply Directly' : `Apply on ${job.source||'LinkedIn'}`}
                             </a>
                             <button className="apply-btn-dropdown" title="Apply on other portals"
                               onClick={e=>{ e.stopPropagation(); setApplyPortalOpen(applyPortalOpen===job.id?null:job.id); }}>
