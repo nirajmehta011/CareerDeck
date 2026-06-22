@@ -2510,7 +2510,8 @@ Return this exact JSON schema:
         buildPrompt(attempt),
         `Search for jobs now. Role: "${keyword||'any'}", Location: "${location||'anywhere'}", Portals: ${portals.join(', ')}. Return JSON only.`,
         t => { fullResponse = t; },
-        { provider: user.llmProvider, model: user.llmModel, apiKey: user.apiKey, webSearch: true }
+        // webSearch DISABLED: Gemini grounding injects citation markup that breaks JSON parsing
+        { provider: user.llmProvider, model: user.llmModel, apiKey: user.apiKey }
       );
       return fullResponse;
     };
@@ -2755,144 +2756,166 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
       {/* ── Search Bar ── */}
       <div style={{ borderBottom:'1px solid var(--border)', flexShrink:0, background:'var(--surface)' }}>
 
-        {/* Row 1: Primary search fields */}
-        <div style={{ padding:'14px 24px 10px', display:'flex', gap:10, alignItems:'center', flexWrap:'wrap' }}>
-          {/* Role/Keyword – widest */}
-          <div style={{ position:'relative', flex:'3 1 220px', minWidth:0 }}>
-            <div style={{ position:'absolute', left:11, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none' }}>{Search && <Search size={14}/>}</div>
-            <input id="js-keyword" className="field-input" style={{ paddingLeft:34, fontSize:13, height:40 }}
+        {/* Row 1: Primary search ─ CSS grid so it never wraps */}
+        <div style={{ padding:'12px 20px 10px', display:'grid', gridTemplateColumns:'1fr auto auto auto auto', gap:8, alignItems:'center' }}>
+
+          {/* Keyword – takes remaining space */}
+          <div style={{ position:'relative', gridColumn:'1' }}>
+            <div style={{ position:'absolute', left:11, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none' }}>
+              {Search && <Search size={14}/>}
+            </div>
+            <input id="js-keyword" className="field-input"
+              style={{ paddingLeft:34, fontSize:13, height:38, width:'100%' }}
               placeholder="Job title, skill, or keyword…"
               value={keyword} onChange={e => setKeyword(e.target.value)}
               onKeyDown={e => e.key==='Enter' && searchMode==='live' && fetchLiveJobs()}
               list="role-suggestions"
             />
           </div>
+
           {/* Company */}
-          <div style={{ position:'relative', flex:'2 1 160px', minWidth:0 }}>
-            <div style={{ position:'absolute', left:11, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none', fontSize:12 }}>🏢</div>
-            <input id="js-company" className="field-input" style={{ paddingLeft:32, fontSize:13, height:40 }}
-              placeholder="Company name…"
+          <div style={{ position:'relative', width:170 }}>
+            <div style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none', fontSize:13 }}>🏢</div>
+            <input id="js-company" className="field-input"
+              style={{ paddingLeft:30, fontSize:13, height:38, width:'100%' }}
+              placeholder="Company…"
               value={company} onChange={e => setCompany(e.target.value)}
               onKeyDown={e => e.key==='Enter' && searchMode==='live' && fetchLiveJobs()}
               list="company-suggestions"
             />
           </div>
+
           {/* Location */}
-          <div style={{ position:'relative', flex:'2 1 160px', minWidth:0 }}>
-            <div style={{ position:'absolute', left:11, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none' }}>{MapPin && <MapPin size={14}/>}</div>
-            <input id="js-location" className="field-input" style={{ paddingLeft:34, fontSize:13, height:40 }}
-              placeholder="City, country, or Remote…"
+          <div style={{ position:'relative', width:190 }}>
+            <div style={{ position:'absolute', left:11, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none' }}>
+              {MapPin && <MapPin size={13}/>}
+            </div>
+            <input id="js-location" className="field-input"
+              style={{ paddingLeft:30, fontSize:13, height:38, width:'100%' }}
+              placeholder="City or Remote…"
               value={location} onChange={e => setLocation(e.target.value)}
               onKeyDown={e => e.key==='Enter' && searchMode==='live' && fetchLiveJobs()}
               list="location-suggestions"
             />
           </div>
+
           {/* Remote toggle */}
           <label style={{
-            display:'flex', alignItems:'center', gap:6, cursor:'pointer', fontSize:12,
-            color: remoteOnly ? 'var(--success)' : 'var(--text-2)', whiteSpace:'nowrap', flexShrink:0,
-            padding:'0 14px', height:40,
-            background: remoteOnly ? 'rgba(52,211,153,0.1)' : 'var(--surface-2)',
+            display:'flex', alignItems:'center', gap:5, cursor:'pointer', fontSize:12,
+            color: remoteOnly ? '#34D399' : 'var(--text-2)', whiteSpace:'nowrap',
+            padding:'0 12px', height:38,
+            background: remoteOnly ? 'rgba(52,211,153,0.12)' : 'var(--surface-2)',
             border: `1px solid ${remoteOnly ? 'rgba(52,211,153,0.5)' : 'var(--border)'}`,
             borderRadius:8, transition:'all 0.15s', fontWeight:600,
           }}>
-            <input type="checkbox" checked={remoteOnly} onChange={e => setRemoteOnly(e.target.checked)} style={{ accentColor:'var(--success)', width:14, height:14 }}/>
+            <input type="checkbox" checked={remoteOnly} onChange={e => setRemoteOnly(e.target.checked)}
+              style={{ accentColor:'#34D399', width:13, height:13, margin:0 }}/>
             <span>🌍 Remote</span>
           </label>
-          {/* Search Button */}
+
+          {/* Search / Clear button */}
           {searchMode === 'live' ? (
             <button className="btn btn-primary" onClick={fetchLiveJobs} disabled={loadingLive}
-              style={{ height:40, paddingInline:22, fontSize:13, flexShrink:0, minWidth:130, gap:7 }}>
-              {loadingLive ? <><Spinner size={13}/> Searching…</> : <>{Search && <Search size={13}/>} Search Jobs</>}
+              style={{ height:38, padding:'0 18px', fontSize:13, whiteSpace:'nowrap', gap:6, minWidth:120 }}>
+              {loadingLive
+                ? <><Spinner size={12}/>&nbsp;Searching…</>
+                : <>{Search && <Search size={13}/>}&nbsp;Search Jobs</>
+              }
             </button>
           ) : (
-            hasFilters && (
-              <button className="btn btn-ghost" style={{ height:40, flexShrink:0 }} onClick={clearFilters}>
-                {X && <X size={12}/>} Clear filters
-              </button>
-            )
+            hasFilters
+              ? <button className="btn btn-ghost" style={{ height:38, padding:'0 14px', fontSize:13, whiteSpace:'nowrap' }} onClick={clearFilters}>
+                  {X && <X size={12}/>} Clear
+                </button>
+              : <div/>
           )}
         </div>
 
         {/* Divider */}
-        <div style={{ height:'1px', background:'var(--border)', margin:'0 24px' }}/>
+        <div style={{ height:1, background:'var(--border)', margin:'0 20px' }}/>
 
-        {/* Row 2: Secondary filters – compact chip row */}
-        <div style={{ padding:'8px 24px 10px', display:'flex', gap:8, alignItems:'center', flexWrap:'wrap', overflowX:'auto' }}>
-          {/* Job type */}
-          <select className="field-input" style={{ fontSize:12, height:32, width:'auto', minWidth:105, flexShrink:0 }} value={jobType} onChange={e => setJobType(e.target.value)}>
+        {/* Row 2: Secondary filter chips – nowrap with scroll */}
+        <div style={{ padding:'7px 20px 9px', display:'flex', gap:6, alignItems:'center', overflowX:'auto', flexWrap:'nowrap' }}>
+
+          <select className="field-input" style={{ fontSize:12, height:30, flexShrink:0 }}
+            value={jobType} onChange={e => setJobType(e.target.value)}>
             <option value="All">All Types</option>
             {JOB_TYPES.slice(1).map(t => <option key={t}>{t}</option>)}
           </select>
 
-          {/* Experience */}
-          <select className="field-input" style={{ fontSize:12, height:32, width:'auto', minWidth:100, flexShrink:0 }} value={experience} onChange={e => setExperience(e.target.value)}>
+          <select className="field-input" style={{ fontSize:12, height:30, flexShrink:0 }}
+            value={experience} onChange={e => setExperience(e.target.value)}>
             <option value="All">All Levels</option>
-            <option value="Entry Level (0-2 yrs)">Entry (0-2 yrs)</option>
-            <option value="Mid Level (3-5 yrs)">Mid (3-5 yrs)</option>
-            <option value="Senior (6-10 yrs)">Senior (6-10 yrs)</option>
-            <option value="Lead/Principal (10+ yrs)">Lead (10+ yrs)</option>
+            <option value="Entry Level (0-2 yrs)">Entry</option>
+            <option value="Mid Level (3-5 yrs)">Mid</option>
+            <option value="Senior (6-10 yrs)">Senior</option>
+            <option value="Lead/Principal (10+ yrs)">Lead</option>
           </select>
 
-          {/* Date Posted */}
-          <select className="field-input" style={{ fontSize:12, height:32, width:'auto', minWidth:100, flexShrink:0 }} value={datePosted} onChange={e => setDatePosted(e.target.value)}>
+          <select className="field-input" style={{ fontSize:12, height:30, flexShrink:0 }}
+            value={datePosted} onChange={e => setDatePosted(e.target.value)}>
             {DATE_RANGES.map(t => <option key={t}>{t}</option>)}
           </select>
 
-          {/* Vertical divider */}
-          <div style={{ width:1, height:22, background:'var(--border)', flexShrink:0 }}/>
+          {/* Divider */}
+          <div style={{ width:1, height:18, background:'var(--border)', flexShrink:0, margin:'0 2px' }}/>
 
-          {/* Currency */}
-          <select className="field-input" style={{ fontSize:12, height:32, width:80, flexShrink:0 }} value={currency} onChange={e => setCurrency(e.target.value)}>
+          {/* Currency + salary range inline */}
+          <select className="field-input" style={{ fontSize:12, height:30, width:72, flexShrink:0 }}
+            value={currency} onChange={e => setCurrency(e.target.value)}>
             <option value="USD">$ USD</option>
             <option value="INR">₹ INR</option>
           </select>
 
-          {/* Salary range – compact */}
-          <div style={{ display:'flex', alignItems:'center', gap:4, flexShrink:0 }}>
-            <div style={{ position:'relative' }}>
-              <span style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', fontSize:11, fontWeight:700, color:'var(--text-3)', pointerEvents:'none', lineHeight:1 }}>
-                {currency==='INR'?'₹':'$'}
-              </span>
-              <input className="field-input mono" style={{ paddingLeft:18, fontSize:12, height:32, width:96 }} type="number"
-                placeholder="Min" value={salaryMin} onChange={e=>setSalaryMin(e.target.value)}/>
-            </div>
-            <span style={{ color:'var(--text-3)', fontSize:12, flexShrink:0 }}>–</span>
-            <div style={{ position:'relative' }}>
-              <span style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', fontSize:11, fontWeight:700, color:'var(--text-3)', pointerEvents:'none', lineHeight:1 }}>
-                {currency==='INR'?'₹':'$'}
-              </span>
-              <input className="field-input mono" style={{ paddingLeft:18, fontSize:12, height:32, width:96 }} type="number"
-                placeholder="Max" value={salaryMax} onChange={e=>setSalaryMax(e.target.value)}/>
-            </div>
-            <span style={{ fontSize:10, color:'var(--text-3)', flexShrink:0 }}>{currency==='INR'?'Lakhs':'K'}</span>
+          <div style={{ position:'relative', flexShrink:0 }}>
+            <span style={{ position:'absolute', left:7, top:'50%', transform:'translateY(-50%)', fontSize:11, color:'var(--text-3)', pointerEvents:'none', fontWeight:700 }}>
+              {currency==='INR' ? '₹' : '$'}
+            </span>
+            <input className="field-input mono" type="number"
+              style={{ paddingLeft:16, height:30, width:80, fontSize:12 }}
+              placeholder="Min" value={salaryMin} onChange={e => setSalaryMin(e.target.value)}/>
           </div>
 
-          {/* Vertical divider */}
-          <div style={{ width:1, height:22, background:'var(--border)', flexShrink:0 }}/>
+          <span style={{ color:'var(--text-3)', fontSize:12, flexShrink:0 }}>–</span>
 
-          {/* Portal selector (live mode only) */}
+          <div style={{ position:'relative', flexShrink:0 }}>
+            <span style={{ position:'absolute', left:7, top:'50%', transform:'translateY(-50%)', fontSize:11, color:'var(--text-3)', pointerEvents:'none', fontWeight:700 }}>
+              {currency==='INR' ? '₹' : '$'}
+            </span>
+            <input className="field-input mono" type="number"
+              style={{ paddingLeft:16, height:30, width:80, fontSize:12 }}
+              placeholder="Max" value={salaryMax} onChange={e => setSalaryMax(e.target.value)}/>
+          </div>
+
+          <span style={{ fontSize:10, color:'var(--text-3)', flexShrink:0 }}>{currency==='INR' ? 'L' : 'K'}</span>
+
+          {/* Divider */}
+          <div style={{ width:1, height:18, background:'var(--border)', flexShrink:0, margin:'0 2px' }}/>
+
+          {/* Portal selector – live mode only */}
           {searchMode === 'live' && (
             <div style={{ position:'relative', flexShrink:0 }}>
               <button type="button" className="field-input"
-                style={{ height:32, fontSize:12, display:'flex', alignItems:'center', gap:6, cursor:'pointer', background:'var(--surface-2)', textAlign:'left', minWidth:120, flexShrink:0 }}
-                onClick={() => setPortalDropdownOpen(!portalDropdownOpen)}>
-                <span style={{ fontSize:12 }}>📡</span>
-                <span style={{ whiteSpace:'nowrap' }}>{selectedPortals.length === ALL_PORTALS.length ? 'All Portals' : `${selectedPortals.length} Portal${selectedPortals.length!==1?'s':''}`}</span>
-                {ChevronDown && <ChevronDown size={11} style={{ marginLeft:'auto', color:'var(--text-3)', flexShrink:0 }}/>}
+                style={{ height:30, fontSize:12, display:'flex', alignItems:'center', gap:5, cursor:'pointer', minWidth:110, padding:'0 8px' }}
+                onClick={() => setPortalDropdownOpen(p => !p)}>
+                <span>📡</span>
+                <span style={{ whiteSpace:'nowrap' }}>
+                  {selectedPortals.length === ALL_PORTALS.length ? 'All Portals' : `${selectedPortals.length} Selected`}
+                </span>
+                {ChevronDown && <ChevronDown size={10} style={{ marginLeft:'auto', color:'var(--text-3)' }}/>}
               </button>
               {portalDropdownOpen && (
                 <>
-                  <div style={{ position:'fixed', inset:0, zIndex:29 }} onClick={()=>setPortalDropdownOpen(false)}/>
-                  <div className="dropdown-menu" style={{ left:0, top:'calc(100% + 6px)', zIndex:30, minWidth:180, padding:6 }}>
-                    <div className="dropdown-item" style={{ fontWeight:700, borderBottom:'1px solid var(--border)', paddingBottom:8, marginBottom:4, display:'flex', alignItems:'center', gap:8 }}
-                      onClick={() => setSelectedPortals(selectedPortals.length === ALL_PORTALS.length ? [] : [...ALL_PORTALS])}>
-                      <input type="checkbox" checked={selectedPortals.length === ALL_PORTALS.length} onChange={()=>{}} style={{ cursor:'pointer' }}/>
-                      <span>All Portals</span>
+                  <div style={{ position:'fixed', inset:0, zIndex:29 }} onClick={() => setPortalDropdownOpen(false)}/>
+                  <div className="dropdown-menu" style={{ left:0, top:'calc(100% + 4px)', zIndex:30, minWidth:170, padding:5 }}>
+                    <div className="dropdown-item" style={{ fontWeight:700, borderBottom:'1px solid var(--border)', paddingBottom:6, marginBottom:3, display:'flex', alignItems:'center', gap:7 }}
+                      onClick={() => setSelectedPortals(selectedPortals.length===ALL_PORTALS.length ? [] : [...ALL_PORTALS])}>
+                      <input type="checkbox" checked={selectedPortals.length===ALL_PORTALS.length} onChange={()=>{}} style={{ cursor:'pointer' }}/>
+                      All Portals
                     </div>
                     {ALL_PORTALS.map(p => (
-                      <div key={p} className="dropdown-item" style={{ display:'flex', alignItems:'center', gap:8 }}
-                        onClick={() => setSelectedPortals(selectedPortals.includes(p) ? selectedPortals.filter(x=>x!==p) : [...selectedPortals, p])}>
+                      <div key={p} className="dropdown-item" style={{ display:'flex', alignItems:'center', gap:7 }}
+                        onClick={() => setSelectedPortals(sp => sp.includes(p) ? sp.filter(x=>x!==p) : [...sp,p])}>
                         <input type="checkbox" checked={selectedPortals.includes(p)} onChange={()=>{}} style={{ cursor:'pointer' }}/>
                         <span className={`portal-badge ${getPortalBadgeClass(p)}`}>{p}</span>
                       </div>
@@ -2904,32 +2927,34 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
           )}
 
           {/* Sort – pushed to right */}
-          <div style={{ marginLeft:'auto', flexShrink:0 }}>
-            <select className="field-input" style={{ fontSize:12, height:32, width:'auto', minWidth:130 }} value={sortBy} onChange={e=>setSortBy(e.target.value)}>
-              <option value="relevance">Sort: Relevance</option>
-              <option value="date">Sort: Newest</option>
-              <option value="salary">Sort: Salary</option>
-            </select>
-          </div>
+          <select className="field-input" style={{ fontSize:12, height:30, flexShrink:0, marginLeft:'auto' }}
+            value={sortBy} onChange={e => setSortBy(e.target.value)}>
+            <option value="relevance">Sort: Relevance</option>
+            <option value="date">Sort: Newest</option>
+            <option value="salary">Sort: Salary</option>
+          </select>
 
           {/* Save search */}
           {searchMode === 'live' && hasFilters && (
-            <button className="btn btn-ghost btn-sm" style={{ fontSize:11, height:32, flexShrink:0, gap:5 }} onClick={saveSearch} title="Save this search">
-              {Star && <Star size={12}/>} Save
+            <button className="btn btn-ghost btn-sm" style={{ height:30, fontSize:11, flexShrink:0, gap:4, padding:'0 8px' }}
+              onClick={saveSearch} title="Save this search">
+              {Star && <Star size={11}/>} Save
             </button>
           )}
         </div>
 
         {/* Progress bar */}
         {loadingLive && (
-          <div style={{ padding:'0 0 0' }}>
+          <div>
             <div className="search-progress-bar">
               <div className="search-progress-fill" style={{ width:`${loadProgress}%` }}/>
             </div>
-            <div style={{ fontSize:11, color:'var(--text-3)', padding:'5px 24px 8px', letterSpacing:'0.03em' }}>{searchPhase}</div>
+            <div style={{ fontSize:11, color:'var(--text-3)', padding:'4px 20px 7px' }}>{searchPhase}</div>
           </div>
         )}
       </div>
+
+
 
       {/* ── Main content ── */}
       <div style={{ flex:1, overflowY:'auto', padding:'20px 24px' }}>
