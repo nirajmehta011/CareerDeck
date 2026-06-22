@@ -2311,6 +2311,11 @@ function buildApplyUrl(portal, roleName, companyName, location, remote) {
   }
 }
 
+function getPortalBadgeClass(portal) {
+  const m = { 'LinkedIn':'linkedin', 'Indeed':'indeed', 'Naukri.com':'naukri', 'Glassdoor':'glassdoor' };
+  return m[portal] || 'default';
+}
+
 function formatSalary(min, max, targetCurrency) {
   if (!min && !max) return '—';
   if (targetCurrency === 'INR') {
@@ -2773,7 +2778,7 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
           </div>
 
           <div style={{ position:'relative' }}>
-            <span style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none', fontSize:13 }}>&#127962;</span>
+            <span style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:'var(--text-3)', pointerEvents:'none', fontSize:13 }}>🏢</span>
             <input id="js-company" className="field-input"
               style={{ paddingLeft:30, fontSize:13, height:38, width:'100%' }}
               placeholder="Company..."
@@ -2806,7 +2811,7 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
           }}>
             <input type="checkbox" checked={remoteOnly} onChange={e => setRemoteOnly(e.target.checked)}
               style={{ accentColor:'#34D399', width:13, height:13, margin:0 }}/>
-            <span>&#127757; Remote</span>
+            <span>🌐 Remote</span>
           </label>
 
           {searchMode === 'live' ? (
@@ -2829,13 +2834,13 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
         {/* Row 2: Filters - wraps so all are always visible */}
         <div style={{ padding:'8px 20px 10px', display:'flex', gap:6, alignItems:'center', flexWrap:'wrap' }}>
 
-          <select className="field-input" style={{ fontSize:12, height:30, minWidth:96 }}
+          <select className="field-input" style={{ fontSize:12, height:30, minWidth:96, padding:'0 10px' }}
             value={jobType} onChange={e => setJobType(e.target.value)}>
             <option value="All">All Types</option>
             {JOB_TYPES.slice(1).map(t => <option key={t}>{t}</option>)}
           </select>
 
-          <select className="field-input" style={{ fontSize:12, height:30, minWidth:86 }}
+          <select className="field-input" style={{ fontSize:12, height:30, minWidth:86, padding:'0 10px' }}
             value={experience} onChange={e => setExperience(e.target.value)}>
             <option value="All">All Levels</option>
             <option value="Entry Level (0-2 yrs)">Entry</option>
@@ -2844,35 +2849,35 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
             <option value="Lead/Principal (10+ yrs)">Lead</option>
           </select>
 
-          <select className="field-input" style={{ fontSize:12, height:30, minWidth:78 }}
+          <select className="field-input" style={{ fontSize:12, height:30, minWidth:78, padding:'0 10px' }}
             value={datePosted} onChange={e => setDatePosted(e.target.value)}>
             {DATE_RANGES.map(t => <option key={t}>{t}</option>)}
           </select>
 
           <div style={{ width:1, height:20, background:'var(--border)', flexShrink:0, margin:'0 1px' }}/>
 
-          <select className="field-input" style={{ fontSize:12, height:30, minWidth:68 }}
+          <select className="field-input" style={{ fontSize:12, height:30, minWidth:68, padding:'0 10px' }}
             value={currency} onChange={e => setCurrency(e.target.value)}>
             <option value="USD">$ USD</option>
-            <option value="INR">&#8377; INR</option>
+            <option value="INR">₹ INR</option>
           </select>
 
           <div style={{ display:'flex', alignItems:'center', gap:4 }}>
             <div style={{ position:'relative' }}>
               <span style={{ position:'absolute', left:6, top:'50%', transform:'translateY(-50%)', fontSize:11, color:'var(--text-3)', pointerEvents:'none', fontWeight:700 }}>
-                {currency === 'INR' ? '&#8377;' : '$'}
+                {currency === 'INR' ? '₹' : '$'}
               </span>
               <input className="field-input mono" type="number"
-                style={{ paddingLeft:15, height:30, width:76, fontSize:12 }}
+                style={{ padding:'0 8px 0 15px', height:30, width:76, fontSize:12 }}
                 placeholder="Min" value={salaryMin} onChange={e => setSalaryMin(e.target.value)}/>
             </div>
             <span style={{ color:'var(--text-3)', fontSize:14, lineHeight:1 }}>-</span>
             <div style={{ position:'relative' }}>
               <span style={{ position:'absolute', left:6, top:'50%', transform:'translateY(-50%)', fontSize:11, color:'var(--text-3)', pointerEvents:'none', fontWeight:700 }}>
-                {currency === 'INR' ? '&#8377;' : '$'}
+                {currency === 'INR' ? '₹' : '$'}
               </span>
               <input className="field-input mono" type="number"
-                style={{ paddingLeft:15, height:30, width:76, fontSize:12 }}
+                style={{ padding:'0 8px 0 15px', height:30, width:76, fontSize:12 }}
                 placeholder="Max" value={salaryMax} onChange={e => setSalaryMax(e.target.value)}/>
             </div>
             <span style={{ fontSize:10, color:'var(--text-3)' }}>{currency === 'INR' ? 'L' : 'K'}</span>
@@ -2885,7 +2890,7 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
               <button type="button" className="field-input"
                 style={{ height:30, fontSize:12, display:'flex', alignItems:'center', gap:5, cursor:'pointer', minWidth:108, padding:'0 8px' }}
                 onClick={() => setPortalDropdownOpen(!portalDropdownOpen)}>
-                <span>&#128225;</span>
+                <span>📡</span>
                 <span style={{ whiteSpace:'nowrap' }}>
                   {selectedPortals.length === ALL_PORTALS.length ? 'All Portals' : selectedPortals.length + ' Portals'}
                 </span>
@@ -2914,7 +2919,7 @@ Use this exact schema with all fields filled: id, roleName, companyName, company
             </div>
           )}
 
-          <select className="field-input" style={{ fontSize:12, height:30, minWidth:118, marginLeft:'auto' }}
+          <select className="field-input" style={{ fontSize:12, height:30, minWidth:118, marginLeft:'auto', padding:'0 10px' }}
             value={sortBy} onChange={e => setSortBy(e.target.value)}>
             <option value="relevance">Sort: Relevance</option>
             <option value="date">Sort: Newest</option>
